@@ -1,28 +1,12 @@
-# platform/prometheus.yml
 global:
   scrape_interval: 5s
-  evaluation_interval: 5s
 
 scrape_configs:
-  # 1) FROM IDE
-  - job_name: "spring-host"
+  - job_name: 'example-service'
     metrics_path: /actuator/prometheus
     static_configs:
-      - targets:
-          - host.docker.internal:8080
-          # - host.docker.internal:8081
+      - targets: ['host.docker.internal:8080']
 
-  # 2) FROM COMPOSE
-  # - job_name: "spring-docker"
-  #   metrics_path: /actuator/prometheus
-  #   static_configs:
-  #     - targets:
-  #         - catalog-service:8080
-  #         - order-service:8080
-
-
-  #  management: services
-  #    tracing.sampling.probability: 1.0
-  #    otlp.tracing.endpoint: http://localhost:4317
-  # docker içinden çalıştırılan servisler için:
-  # http://jaeger:4317
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['prometheus:9090']

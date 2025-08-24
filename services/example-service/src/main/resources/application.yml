@@ -1,0 +1,44 @@
+spring:
+  application:
+    name: example-service
+
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP:localhost:19092}
+    consumer:
+      group-id: ${spring.application.name}
+      auto-offset-reset: latest
+      properties:
+        spring.json.trusted.packages: "*"
+    producer:
+      acks: all
+      properties:
+        enable.idempotence: true
+        linger.ms: 5
+        compression.type: zstd
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  tracing:
+    sampling:
+      probability: 1.0
+  otlp:
+    tracing:
+      endpoint: http://localhost:4317
+
+acme:
+  messaging:
+    kafka:
+      max-attempts: 5
+      backoff-ms: 200
+      dlt-suffix: ".DLT"
+      topic-prefix: ""
+
+logging:
+  pattern:
+    level: "%5p [trace=%X{traceId:-} span=%X{spanId:-}]"
+
+server:
+  port: 8080
