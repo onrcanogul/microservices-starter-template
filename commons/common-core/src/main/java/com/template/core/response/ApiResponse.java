@@ -1,5 +1,7 @@
 package com.template.core.response;
 
+import lombok.Getter;
+
 import java.util.Map;
 import java.util.Objects;
 
@@ -8,6 +10,7 @@ import java.util.Objects;
  * Either `success=true + data` or `success=false + error`.
  * Can be returned directly from controllers in a web layer.
  */
+@Getter
 public final class ApiResponse<T> {
     private final boolean success;
     private final T data;
@@ -32,11 +35,8 @@ public final class ApiResponse<T> {
         return new ApiResponse<>(false, null, new ApiError(code, message, details, traceId));
     }
 
-    public boolean isSuccess() { return success; }
-    public T getData() { return data; }
-    public ApiError getError() { return error; }
-
     /** Nested error description. */
+    @Getter
     public static final class ApiError {
         private final String code;
         private final String message;
@@ -55,10 +55,6 @@ public final class ApiResponse<T> {
             this.details = details;
             this.traceId = traceId;
         }
-        public String getCode() { return code; }
-        public String getMessage() { return message; }
-        public Map<String, Object> getDetails() { return details; }
-        public String getTraceId() { return traceId; }
     }
 }
 

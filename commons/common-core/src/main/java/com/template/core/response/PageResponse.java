@@ -1,11 +1,14 @@
 package com.template.core.response;
 
+import lombok.Getter;
+
 import java.util.List;
 
 /**
  * Lightweight pagination DTO.
  * Contains enough information for most API pagination use cases.
  */
+@Getter
 public final class PageResponse<T> {
     private final List<T> content;
     private final int page;
@@ -22,13 +25,6 @@ public final class PageResponse<T> {
         this.totalPages = size > 0 ? (int) Math.ceil((double) totalElements / (double) size) : 1;
         this.hasNext = (long) (page + 1) * size < totalElements;
     }
-
-    public List<T> getContent() { return content; }
-    public int getPage() { return page; }
-    public int getSize() { return size; }
-    public long getTotalElements() { return totalElements; }
-    public int getTotalPages() { return totalPages; }
-    public boolean isHasNext() { return hasNext; }
 
     public static <T> PageResponse<T> of(List<T> content, int page, int size, long totalElements) {
         return new PageResponse<>(content, page, size, totalElements);
