@@ -5,14 +5,14 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix = "acme.persistence")
 public class PersistenceProperties {
 
-    private boolean openInView = false;       // OSIV kapalı
-    private String ddlAuto = "none";          // prod için güvenli default
-    private String timeZone = "UTC";          // JDBC timezone
+    private boolean openInView = false;
+    private String ddlAuto = "none";
+    private String timeZone = "UTC";
 
-    private int jdbcBatchSize = 50;           // batch insert/update
+    private int jdbcBatchSize = 50;
     private boolean orderInserts = true;
     private boolean orderUpdates = true;
-    private boolean showSql = false;          // dev'de serviste açabilirsin
+    private boolean showSql = false;
 
     private Tx tx = new Tx();
     private Jpa jpa = new Jpa();
