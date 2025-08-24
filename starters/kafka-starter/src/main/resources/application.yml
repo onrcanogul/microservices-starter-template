@@ -1,0 +1,29 @@
+
+acme:
+  messaging:
+    kafka:
+      max-attempts: 5
+      backoff-ms: 200
+
+
+
+#spring: to services
+#  kafka:
+#    bootstrap-servers: ${KAFKA_BOOTSTRAP:localhost:19092}
+#    consumer:
+#      group-id: ${spring.application.name}
+#      auto-offset-reset: latest
+#      properties:
+#        spring.json.trusted.packages: "*"
+#    producer:
+#      acks: all
+#      properties:
+#        enable.idempotence: true
+#        linger.ms: 5
+#        compression.type: zstd
+#  kafka.bootstrap-servers: ${KAFKA_BOOTSTRAP:localhost:19092}
+#  kafka.consumer.group-id: ${spring.application.name}
+#  kafka.consumer.properties.spring.json.trusted.packages: "*"
+#
+#management.tracing.sampling.probability: 1.0
+#management.otlp.tracing.endpoint: http://localhost:4317
