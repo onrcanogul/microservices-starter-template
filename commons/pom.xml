@@ -18,5 +18,6 @@
         <module>common-core</module>
         <module>common-web</module>
         <module>common-test</module>
+        <module>common-messaging</module>
     </modules>
 </project>
