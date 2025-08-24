@@ -1,0 +1,6 @@
+acme:
+  web:
+    error:
+      format: problem_detail
+      include-message: true
+      include-stack-trace: false
