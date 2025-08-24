@@ -1,0 +1,39 @@
+management:
+  endpoints.web.exposure.include: health,info,prometheus
+  endpoint.health.show-details: when_authorized
+  metrics:
+    tags:
+      app: ${spring.application.name}
+      env: ${APP_ENV:${spring.profiles.active:dev}}
+    distribution.percentiles-histogram:
+      http.server.requests: true
+  tracing:
+    sampling.probability: 0.10
+
+acme:
+  obs:
+    add-trace-response-header: true
+    max-unique-http-uris: 200
+    tracing:
+      enabled: true
+      otlp-enabled: false
+      otlp-endpoint: http://otel-collector:4317
+
+logging:
+  pattern.level: "%5p [trace_id:%X{traceId} span_id:%X{spanId}]"
+
+
+#FOR EACH SERVICE :
+#spring:
+#  application:
+#    name: order-service
+#
+#management:
+#  tracing.sampling.probability: 0.15
+#  otlp.tracing.endpoint: http://otel-collector:4317
+#
+#acme.obs:
+#  add-trace-response-header: true
+#  max-unique-http-uris: 300
+#  common-tags:
+#    team: core-platform
