@@ -1,0 +1,32 @@
+name: Example Service CI
+
+on:
+  push:
+    paths:
+      - 'services/example-service/**'
+  pull_request:
+    paths:
+      - 'services/example-service/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Build Example Service
+        run: |
+          cd services/example-service
+          mvn clean verify -DskipTests=false
+
+#      - name: Build Docker Image
+#        run: |
+#          docker build -t ghcr.io/${{ github.repository }}/example-service:${{ github.sha }} .
+#          echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+#          docker push ghcr.io/${{ github.repository }}/order-service:${{ github.sha }}
