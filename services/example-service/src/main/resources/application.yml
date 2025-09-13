@@ -1,7 +1,10 @@
 spring:
   application:
     name: example-service
-
+  eureka:
+    client:
+      service-url:
+        defaultZone: http://discovery-service:8761/eureka
   kafka:
     bootstrap-servers: ${KAFKA_BOOTSTRAP:localhost:19092}
     consumer:
@@ -42,3 +45,23 @@ logging:
 
 server:
   port: 8080
+
+jwt-secret: fcdddf3ec7f9cf18e1642a5b24239fc9c4ff7fed8fbeb53292ab97986141d023972fdae894b0b2a4
+
+#per:
+#  datasource:
+#    url: jdbc:oracle:thin:@//localhost:1521/FREEPDB1
+#    username: ACCOUNT
+#    password: account
+#    pool-size: 10
+#  messaging:
+#    kafka:
+#      max-attempts: 5
+#      backoff-ms: 200
+#  obs:
+#    add-trace-response-header: true
+#    max-unique-http-uris: 200
+#    tracing:
+#      enabled: true
+#      otlp-enabled: false
+#      otlp-endpoint: http://otel-collector:4317

@@ -1,0 +1,43 @@
+server:
+  port: 8000
+
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowed-origins: "*"
+            allowed-methods: [GET, POST, PUT, DELETE, OPTIONS]
+            allowed-headers: "*"
+
+      routes:
+        # ==================== ACCOUNT SERVICE ====================
+        - id: example-service
+          uri: lb://example-service
+          predicates:
+            - Path=/example/**
+          filters:
+            - RewritePath=/example/(?<segment>.*), /api/example/${segment}
+#            - name: RequestRateLimiter
+#              args:
+#                redis-rate-limiter.replenishRate: 10
+#                redis-rate-limiter.burstCapacity: 20
+#                key-resolver: "#{@ipKeyResolver}"
+
+
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://eureka-server:8761/eureka
+
+management:
+  endpoints:
+    web.exposure.include: health,info
+  endpoint:
+    health.show-details: always
+
+jwt-secret: fcdddf3ec7f9cf18e1642a5b24239fc9c4ff7fed8fbeb53292ab97986141d023972fdae894b0b2a4

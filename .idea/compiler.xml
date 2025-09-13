@@ -7,12 +7,14 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="example-service" />
-        <module name="common-test" />
         <module name="inbox-starter" />
         <module name="persistence-starter" />
         <module name="observability-starter" />
         <module name="security-starter" />
         <module name="common-messaging" />
+        <module name="discovery-service" />
+        <module name="common-test" />
+        <module name="api-gateway" />
         <module name="common-web" />
         <module name="kafka-starter" />
         <module name="outbox-starter" />
@@ -22,7 +24,9 @@
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="api-gateway" options="-parameters" />
       <module name="common-messaging" options="" />
+      <module name="discovery-service" options="-parameters" />
       <module name="example-service" options="" />
       <module name="inbox-starter" options="-parameters" />
       <module name="kafka-starter" options="-parameters" />
