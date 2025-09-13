@@ -1,6 +1,6 @@
-package com.template.microservices.example.repository;
+package com.template.microservices.example.infrastructure.repository;
 
-import com.template.microservices.example.entity.Order;
+import com.template.microservices.example.domain.entity.Order;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

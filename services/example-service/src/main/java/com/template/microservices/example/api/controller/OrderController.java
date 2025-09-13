@@ -1,10 +1,10 @@
-package com.template.microservices.example.controller;
+package com.template.microservices.example.api.controller;
 
 import com.template.core.response.ApiResponse;
 import com.template.kafka.publisher.EventPublisher;
-import com.template.microservices.example.entity.Order;
-import com.template.microservices.example.event.OrderCreatedEvent;
-import com.template.microservices.example.service.OrderService;
+import com.template.microservices.example.domain.entity.Order;
+import com.template.microservices.example.infrastructure.messaging.OrderCreatedEvent;
+import com.template.microservices.example.application.service.order.OrderService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

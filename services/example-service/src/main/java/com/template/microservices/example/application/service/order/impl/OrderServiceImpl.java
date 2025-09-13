@@ -1,8 +1,8 @@
-package com.template.microservices.example.service.impl;
+package com.template.microservices.example.application.service.order.impl;
 
-import com.template.microservices.example.entity.Order;
-import com.template.microservices.example.repository.OrderRepository;
-import com.template.microservices.example.service.OrderService;
+import com.template.microservices.example.domain.entity.Order;
+import com.template.microservices.example.infrastructure.repository.OrderRepository;
+import com.template.microservices.example.application.service.order.OrderService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

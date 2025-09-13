@@ -1,4 +1,4 @@
-package com.template.microservices.example.configuration;
+package com.template.microservices.example.infrastructure.configuration;
 
 import com.template.kafka.property.KafkaMessagingProperties;
 import org.apache.kafka.clients.admin.NewTopic;

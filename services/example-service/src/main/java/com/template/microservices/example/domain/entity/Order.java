@@ -1,4 +1,4 @@
-package com.template.microservices.example.entity;
+package com.template.microservices.example.domain.entity;
 
 import com.template.core.audit.IInsertAuditing;
 import com.template.core.audit.ISoftDelete;

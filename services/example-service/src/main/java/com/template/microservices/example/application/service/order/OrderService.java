@@ -1,9 +1,8 @@
-package com.template.microservices.example.service;
+package com.template.microservices.example.application.service.order;
 
-import com.template.microservices.example.entity.Order;
+import com.template.microservices.example.domain.entity.Order;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface OrderService {
     List<Order> get();

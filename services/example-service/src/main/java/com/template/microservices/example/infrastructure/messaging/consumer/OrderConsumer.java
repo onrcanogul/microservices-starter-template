@@ -1,8 +1,8 @@
-package com.template.microservices.example.event.consumer;
+package com.template.microservices.example.infrastructure.messaging.consumer;
 
 import com.template.messaging.service.consumer.Consumer;
 import com.template.messaging.wrapper.EventWrapper;
-import com.template.microservices.example.event.OrderCreatedEvent;
+import com.template.microservices.example.infrastructure.messaging.OrderCreatedEvent;
 import com.template.starter.inbox.service.InboxService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
