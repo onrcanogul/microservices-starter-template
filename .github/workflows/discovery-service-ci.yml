@@ -24,7 +24,7 @@ jobs:
 
       - name: Build Discovery Service
         run: |
-          cd infra/discovery
+          cd infra/discovery-service
           mvn clean package -DskipTests=false
 
 #      - name: Build Docker Image
