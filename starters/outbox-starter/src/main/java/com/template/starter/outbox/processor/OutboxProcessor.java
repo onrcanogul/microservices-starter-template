@@ -30,7 +30,7 @@ public class OutboxProcessor {
         this.objectMapper = objectMapper;
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public void processAsync() {
         List<Outbox> outboxes = repository.findByPublishedFalse();
         for (Outbox outbox : outboxes) {
