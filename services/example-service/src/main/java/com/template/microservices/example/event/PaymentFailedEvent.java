@@ -1,4 +1,6 @@
 package com.template.microservices.example.event;
 
-public record PaymentFailedEvent (Long orderId) {
+import com.template.messaging.event.base.Event;
+
+public record PaymentFailedEvent (Long orderId) implements Event {
 }

@@ -33,7 +33,6 @@
 			<version>${project.version}</version>
 		</dependency>
 
-		<!-- (opsiyonel) lombok -->
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
@@ -42,6 +41,18 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.template.starter</groupId>
+			<artifactId>outbox-starter</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.template.starter</groupId>
+			<artifactId>inbox-starter</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+			<scope>compile</scope>
 		</dependency>
 	</dependencies>
 

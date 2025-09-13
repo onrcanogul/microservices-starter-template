@@ -18,7 +18,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @AutoConfiguration
-@ConditionalOnClass(EntityManagerFactoryBuilder.class) // JPA classpath'te ise aktif
+@ConditionalOnClass(EntityManagerFactoryBuilder.class)
 @EnableConfigurationProperties(PersistenceProperties.class)
 public class PersistenceAutoConfiguration {
 

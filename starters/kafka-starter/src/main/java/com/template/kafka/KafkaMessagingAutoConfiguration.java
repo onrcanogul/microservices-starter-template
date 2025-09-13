@@ -1,6 +1,6 @@
 package com.template.kafka;
 
-import com.template.messaging.event.EventWrapper;
+import com.template.messaging.wrapper.EventWrapper;
 import com.template.core.exception.BusinessException;
 import com.template.kafka.property.KafkaMessagingProperties;
 import com.template.kafka.publisher.EventPublisher;
@@ -26,9 +26,6 @@ import java.util.function.Function;
 @AutoConfiguration
 @EnableConfigurationProperties(KafkaMessagingProperties.class)
 public class KafkaMessagingAutoConfiguration {
-
-    /* ---------- Producer ---------- */
-
     @Bean
     @ConditionalOnMissingBean
     public ProducerFactory<String, Object> producerFactory(KafkaProperties props) {
@@ -46,8 +43,6 @@ public class KafkaMessagingAutoConfiguration {
         return kt;
     }
 
-    /* ---------- Consumer (EventEnvelope as value) ---------- */
-
     @Bean(name = "kafkaListenerContainerFactory")
     @ConditionalOnMissingBean
     public ConcurrentKafkaListenerContainerFactory<String, EventWrapper<?>> kafkaListenerContainerFactory(
@@ -57,7 +52,6 @@ public class KafkaMessagingAutoConfiguration {
 
         var cfg = props.buildConsumerProperties();
 
-        // Configure JsonDeserializer for EventEnvelope
         JsonDeserializer<EventWrapper<?>> jd =
                 new JsonDeserializer<>(EventWrapper.class);
         ConsumerFactory<String, EventWrapper<?>> cf =

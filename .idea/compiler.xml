@@ -8,12 +8,14 @@
         <outputRelativeToContentRoot value="true" />
         <module name="example-service" />
         <module name="common-test" />
+        <module name="inbox-starter" />
         <module name="persistence-starter" />
         <module name="observability-starter" />
         <module name="security-starter" />
         <module name="common-messaging" />
         <module name="common-web" />
         <module name="kafka-starter" />
+        <module name="outbox-starter" />
         <module name="common-core" />
       </profile>
     </annotationProcessing>
@@ -22,7 +24,10 @@
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="common-messaging" options="" />
       <module name="example-service" options="" />
+      <module name="inbox-starter" options="-parameters" />
       <module name="kafka-starter" options="-parameters" />
+      <module name="outbox-starter" options="-parameters" />
+      <module name="security-starter" options="-parameters" />
     </option>
   </component>
 </project>
