@@ -3,9 +3,9 @@
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>com.acme.enterprise</groupId>
-		<artifactId>enterprise-template</artifactId>
+		<artifactId>commons</artifactId>
 		<version>0.1.0-SNAPSHOT</version>
-		<relativePath>../..</relativePath>
+		<relativePath>../pom.xml</relativePath>
 	</parent>
 	<artifactId>common-messaging</artifactId>
 	<packaging>jar</packaging>

@@ -8,7 +8,6 @@
 		<version>3.5.5</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.devbank</groupId>
 	<artifactId>security-starter</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>security-starter</name>

@@ -5,9 +5,9 @@
 
 	<parent>
 		<groupId>com.acme.enterprise</groupId>
-		<artifactId>enterprise-template</artifactId>
+		<artifactId>starters</artifactId>
 		<version>0.1.0-SNAPSHOT</version>
-		<relativePath>../..</relativePath>
+		<relativePath>../pom.xml</relativePath>
 	</parent>
 
 	<artifactId>observability-starter</artifactId>

@@ -1,8 +1,5 @@
 package com.template.microservices.example.domain.entity;
 
-import com.template.core.audit.IInsertAuditing;
-import com.template.core.audit.ISoftDelete;
-import com.template.core.audit.IUpdateAuditing;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -13,7 +10,7 @@ import java.time.Instant;
 
 @Entity
 @Getter @Setter
-public class Order implements IInsertAuditing, IUpdateAuditing, ISoftDelete {
+public class Order {
     @Id
     private Long id;
     @Column(nullable = false)
