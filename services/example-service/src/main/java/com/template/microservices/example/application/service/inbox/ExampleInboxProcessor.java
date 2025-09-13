@@ -1,26 +1,29 @@
 package com.template.microservices.example.application.service.inbox;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.template.messaging.event.base.Event;
 import com.template.microservices.example.application.service.order.OrderService;
 import com.template.microservices.example.infrastructure.messaging.OrderCreatedEvent;
 import com.template.microservices.example.infrastructure.messaging.PaymentFailedEvent;
 import com.template.starter.inbox.entity.Inbox;
 import com.template.starter.inbox.repository.InboxRepository;
+import com.template.starter.inbox.service.InboxProcessor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
 
 @Service
-public class InboxProcessor {
+public class ExampleInboxProcessor extends InboxProcessor {
     private final InboxRepository inboxRepository;
-    private final ObjectMapper objectMapper;
     private final OrderService orderService;
 
-    public InboxProcessor(InboxRepository inboxRepository, ObjectMapper objectMapper, OrderService orderService) {
+    public ExampleInboxProcessor(
+            InboxRepository inboxRepository,
+            ObjectMapper objectMapper,
+            OrderService orderService
+    ) {
+        super(objectMapper);
         this.inboxRepository = inboxRepository;
-        this.objectMapper = objectMapper;
         this.orderService = orderService;
     }
 
@@ -37,9 +40,5 @@ public class InboxProcessor {
                 orderService.delete(event.orderId());
             }
         }
-    }
-
-    private <T extends Event> T getType(String payload, Class<T> eventType) {
-        return objectMapper.convertValue(payload, eventType);
     }
 }
