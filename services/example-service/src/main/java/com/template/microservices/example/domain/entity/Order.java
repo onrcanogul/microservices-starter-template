@@ -31,4 +31,5 @@ public class Order {
     private String deletedBy;
     @Column(nullable = true)
     private Instant deletedAt;
+
 }
