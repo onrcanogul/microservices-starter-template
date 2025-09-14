@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: api-gateway
-          image: onrcanogul/api-gateway:latest
+          image: ghcr.io/onrcanogul/api-gateway:latest
           ports:
             - containerPort: 8080
 ---

@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: eureka-server
-          image: onrcanogul/discovery-service:latest
+          image: ghcr.io/onrcanogul/discovery-service:latest
           ports:
             - containerPort: 8761
 ---

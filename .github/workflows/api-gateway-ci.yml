@@ -17,16 +17,19 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '21'
+          cache: 'maven'
 
       - name: Build Gateway
         run: |
-          cd infra/api-gateway
-          mvn clean verify
+          mvn -B clean package -pl infra/api-gateway -am -DskipTests
 
       - name: Build Docker Image
         run: |
-          docker build -t ghcr.io/onrcanogul/api-gateway:latest -f infra/api-gateway/Dockerfile .
+          docker build \
+            -t ghcr.io/onrcanogul/api-gateway:latest \
+            -f infra/api-gateway/Dockerfile .
+
       - name: Push Docker Image
         run: |
-          echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
-          docker push ghcr.io/onrcanogul/discovery:latest
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+          docker push ghcr.io/onrcanogul/api-gateway:latest

@@ -21,14 +21,17 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '21'
+          cache: 'maven'
 
       - name: Build Discovery Service and dependencies
         run: |
-          mvn clean package -pl infra/discovery-service -am -DskipTests
+          mvn -B clean package -pl infra/discovery-service -am -DskipTests
 
       - name: Build Docker Image
         run: |
-          docker build -t ghcr.io/onrcanogul/discovery-service:latest -f infra/discovery-service/Dockerfile .
+          docker build \
+            -t ghcr.io/onrcanogul/discovery-service:latest \
+            -f infra/discovery-service/Dockerfile .
 
       - name: Push Docker Image
         run: |
