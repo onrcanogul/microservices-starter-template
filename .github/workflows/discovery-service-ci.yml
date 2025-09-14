@@ -22,16 +22,15 @@ jobs:
           distribution: 'temurin'
           java-version: '21'
 
-      - name: Build Discovery Service
+      - name: Build Discovery Service and dependencies
         run: |
-          cd infra/discovery-service
-          mvn clean package -DskipTests=false
+          mvn clean package -pl infra/discovery-service -am -DskipTests
 
-#      - name: Build Docker Image
-#        run: |
-#          cd infra/discovery
-#          docker build -t ghcr.io/${{ github.repository }}/discovery:${{ github.sha }} .
-#      - name: Push Docker Image
-#        run: |
-#          echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-#          docker push ghcr.io/${{ github.repository }}/discovery:${{ github.sha }}
+      - name: Build Docker Image
+        run: |
+          docker build -t ghcr.io/onrcanogul/discovery-service:latest -f infra/discovery-service/Dockerfile .
+
+      - name: Push Docker Image
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+          docker push ghcr.io/onrcanogul/discovery-service:latest
