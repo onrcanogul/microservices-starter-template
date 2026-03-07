@@ -10,4 +10,5 @@ import java.util.UUID;
 @Repository
 public interface OutboxRepository extends JpaRepository<Outbox, UUID> {
     List<Outbox> findByPublishedFalse();
+    List<Outbox> findTop100ByPublishedFalse();
 }

@@ -12,6 +12,8 @@ import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.ssl.SslBundles;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.*;
@@ -28,8 +30,9 @@ import java.util.function.Function;
 public class KafkaMessagingAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
-    public ProducerFactory<String, Object> producerFactory(KafkaProperties props) {
-        var cfg = props.buildProducerProperties();
+    public ProducerFactory<String, Object> producerFactory(KafkaProperties props,
+                                                            ObjectProvider<SslBundles> sslBundles) {
+        var cfg = props.buildProducerProperties(sslBundles.getIfAvailable());
         cfg.put(org.apache.kafka.clients.producer.ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         cfg.put(org.apache.kafka.clients.producer.ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
         return new DefaultKafkaProducerFactory<>(cfg);
@@ -48,14 +51,14 @@ public class KafkaMessagingAutoConfiguration {
     public ConcurrentKafkaListenerContainerFactory<String, EventWrapper<?>> kafkaListenerContainerFactory(
             KafkaProperties props,
             KafkaTemplate<String, Object> template,
-            KafkaMessagingProperties mp) {
+            KafkaMessagingProperties mp,
+            ObjectProvider<SslBundles> sslBundles) {
 
-        var cfg = props.buildConsumerProperties();
+        var cfg = props.buildConsumerProperties(sslBundles.getIfAvailable());
 
-        JsonDeserializer<EventWrapper<?>> jd =
-                new JsonDeserializer<>(EventWrapper.class);
-        ConsumerFactory<String, EventWrapper<?>> cf =
-                new DefaultKafkaConsumerFactory<>(cfg, new StringDeserializer(), jd);
+        JsonDeserializer<EventWrapper<?>> jd = new JsonDeserializer<>(EventWrapper.class);
+        jd.addTrustedPackages(mp.getTrustedPackages().split(","));
+        ConsumerFactory<String, EventWrapper<?>> cf = new DefaultKafkaConsumerFactory<>(cfg, new StringDeserializer(), jd);
         ConcurrentKafkaListenerContainerFactory<String, EventWrapper<?>> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(cf);
 

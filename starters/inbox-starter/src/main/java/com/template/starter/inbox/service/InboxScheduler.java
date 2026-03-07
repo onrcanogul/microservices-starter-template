@@ -11,7 +11,7 @@ public class InboxScheduler {
         this.processor = processor;
     }
 
-    @Scheduled(fixedRate = 1500)
+    @Scheduled(fixedRateString = "${acme.inbox.scheduler.rate:1500}")
     public void process() {
         processor.process();
     }

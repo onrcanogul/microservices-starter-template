@@ -7,12 +7,14 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="common-test" />
+        <module name="inbox-starter" />
         <module name="observability-starter" />
         <module name="security-starter" />
         <module name="common-messaging" />
         <module name="api-gateway" />
         <module name="common-web" />
         <module name="kafka-starter" />
+        <module name="outbox-starter" />
         <module name="discovery-service" />
         <module name="common-core" />
       </profile>
@@ -22,12 +24,18 @@
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="false">
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.34/lombok-1.18.34.jar" />
+        </processorPath>
+        <module name="persistence-starter" />
+      </profile>
+      <profile name="Annotation profile for example-service" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.34/lombok-1.18.34.jar" />
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.34/lombok-1.18.34.jar" />
         </processorPath>
         <module name="example-service" />
-        <module name="inbox-starter" />
-        <module name="outbox-starter" />
-        <module name="persistence-starter" />
       </profile>
     </annotationProcessing>
   </component>
@@ -40,7 +48,7 @@
       <module name="inbox-starter" options="" />
       <module name="kafka-starter" options="" />
       <module name="outbox-starter" options="" />
-      <module name="security-starter" options="-parameters" />
+      <module name="security-starter" options="" />
     </option>
   </component>
 </project>

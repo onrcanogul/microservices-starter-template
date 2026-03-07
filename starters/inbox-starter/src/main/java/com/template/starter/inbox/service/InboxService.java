@@ -8,7 +8,7 @@ import com.template.starter.inbox.entity.Inbox;
 import com.template.starter.inbox.repository.InboxRepository;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Service
 public class InboxService {
@@ -25,7 +25,7 @@ public class InboxService {
         try {
             inboxRepository.save(Inbox.builder()
                     .type(wrapper.type())
-                    .receivedAt(LocalDateTime.now())
+                    .receivedAt(Instant.now())
                     .payload(objectMapper.writeValueAsString(wrapper.event()))
                     .processed(false)
                     .idempotentToken(wrapper.id())

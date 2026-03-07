@@ -3,7 +3,7 @@ package com.template.starter.inbox.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.UUID;
 
 @Entity
@@ -23,5 +23,5 @@ public class Inbox {
     @Column(name = "IS_PROCESSED")
     private boolean processed = false;
     @Column(name = "RECEIVED_AT")
-    private LocalDateTime receivedAt;
+    private Instant receivedAt;
 }
