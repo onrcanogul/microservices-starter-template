@@ -27,13 +27,13 @@ jobs:
         run: |
           mvn -B clean package -pl infra/discovery-service -am -DskipTests
 
-      - name: Build Docker Image
-        run: |
-          docker build \
-            -t ghcr.io/onrcanogul/discovery-service:latest \
-            -f infra/discovery-service/Dockerfile .
-
-      - name: Push Docker Image
-        run: |
-          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
-          docker push ghcr.io/onrcanogul/discovery-service:latest
+#      - name: Build Docker Image
+#        run: |
+#          docker build \
+#            -t ghcr.io/onrcanogul/discovery-service:latest \
+#            -f infra/discovery-service/Dockerfile .
+#
+#      - name: Push Docker Image
+#        run: |
+#          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+#          docker push ghcr.io/onrcanogul/discovery-service:latest
