@@ -37,4 +37,7 @@ management:
   endpoint:
     health.show-details: always
 
-jwt-secret: fcdddf3ec7f9cf18e1642a5b24239fc9c4ff7fed8fbeb53292ab97986141d023972fdae894b0b2a4
+acme:
+  security:
+    jwt:
+      secret: ${JWT_SECRET:development-only-key-change-in-production-minimum-64-characters-long!!}

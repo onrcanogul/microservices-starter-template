@@ -89,6 +89,33 @@ services:
       - "8082:8080"
     networks: [devnet]
 
+  # ---------- Application Services ----------
+  api-gateway:
+    image: ghcr.io/onrcanogul/api-gateway:latest
+    container_name: dev-api-gateway
+    restart: unless-stopped
+    environment:
+      - JWT_SECRET=${JWT_SECRET}
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres
+      - kafka
+    networks: [devnet]
+
+  example-service:
+    image: ghcr.io/onrcanogul/example-service:latest
+    container_name: dev-example-service
+    restart: unless-stopped
+    environment:
+      - JWT_SECRET=${JWT_SECRET}
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+      - kafka
+    networks: [devnet]
+
   # ---------- Observability ----------
   jaeger:
     image: jaegertracing/all-in-one:1.58

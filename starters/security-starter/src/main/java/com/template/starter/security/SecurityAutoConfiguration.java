@@ -1,10 +1,12 @@
 package com.template.starter.security;
 
 import com.template.starter.security.filter.JwtAuthenticationFilter;
+import com.template.starter.security.property.SecurityProperties;
 import com.template.starter.security.service.JwtService;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -16,6 +18,7 @@ import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @AutoConfiguration
+@EnableConfigurationProperties(SecurityProperties.class)
 public class SecurityAutoConfiguration {
 
 	@Bean
@@ -26,8 +29,8 @@ public class SecurityAutoConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean
-	public JwtService jwtTokenProvider() {
-		return new JwtService();
+	public JwtService jwtTokenProvider(SecurityProperties properties) {
+		return new JwtService(properties);
 	}
 
 	@Bean

@@ -1,1 +1,6 @@
 .idea
+
+# Secrets
+.env
+.env.local
+.env.production
