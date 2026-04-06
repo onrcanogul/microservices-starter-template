@@ -8,10 +8,12 @@ COPY services ./services
 COPY infra ./infra
 
 RUN mvn clean package -pl services/example-service -am -DskipTests
-RUN ls -lh /app/services/example-service/target
 
-FROM eclipse-temurin:21-jdk
+FROM eclipse-temurin:21-jre
 WORKDIR /app
+
+RUN addgroup --system appgroup && adduser --system --ingroup appgroup appuser
+USER appuser
 
 COPY --from=build /app/services/example-service/target/*-SNAPSHOT.jar app.jar
 
