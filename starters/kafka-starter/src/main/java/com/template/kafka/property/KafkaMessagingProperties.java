@@ -12,7 +12,7 @@ public class KafkaMessagingProperties {
     /** Dead letter topic suffix. */
     private String dltSuffix = ".DLT";
     /** Trusted packages for JsonDeserializer. */
-    private String trustedPackages = "*";
+    private String trustedPackages = "com.template";
 
     public int getMaxAttempts() { return maxAttempts; }
     public void setMaxAttempts(int maxAttempts) { this.maxAttempts = maxAttempts; }

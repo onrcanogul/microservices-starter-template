@@ -40,7 +40,7 @@ acme:
       topic-prefix: ""
   security:
     jwt:
-      secret: ${JWT_SECRET:development-only-key-change-in-production-minimum-64-characters-long!!}
+      secret: ${JWT_SECRET}
 
 logging:
   pattern:

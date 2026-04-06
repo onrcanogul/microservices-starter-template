@@ -9,7 +9,7 @@ spring:
       globalcors:
         cors-configurations:
           '[/**]':
-            allowed-origins: "*"
+            allowed-origins: "${CORS_ALLOWED_ORIGINS:http://localhost:3000}"
             allowed-methods: [GET, POST, PUT, DELETE, OPTIONS]
             allowed-headers: "*"
 
@@ -40,4 +40,4 @@ management:
 acme:
   security:
     jwt:
-      secret: ${JWT_SECRET:development-only-key-change-in-production-minimum-64-characters-long!!}
+      secret: ${JWT_SECRET}

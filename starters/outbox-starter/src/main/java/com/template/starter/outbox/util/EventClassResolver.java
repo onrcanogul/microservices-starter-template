@@ -4,6 +4,7 @@ import com.template.messaging.event.base.Event;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component
@@ -14,10 +15,16 @@ public class EventClassResolver {
         map.put(type, clazz);
     }
 
+    private static final Set<String> ALLOWED_PACKAGES = Set.of("com.template");
+
     @SuppressWarnings("unchecked")
     public Class<? extends Event> resolve(String type) {
         Class<? extends Event> c = map.get(type);
         if (c != null) return c;
+
+        if (ALLOWED_PACKAGES.stream().noneMatch(type::startsWith)) {
+            throw new IllegalArgumentException("Event type not in allowed packages: " + type);
+        }
 
         try {
             Class<?> raw = Class.forName(type);

@@ -18,11 +18,13 @@ public class JwtService {
 
     private static final Logger log = LoggerFactory.getLogger(JwtService.class);
     private final SecretKey signingKey;
+    private final String issuer;
 
     public JwtService(SecurityProperties properties) {
         this.signingKey = Keys.hmacShaKeyFor(
             properties.secret().getBytes(StandardCharsets.UTF_8)
         );
+        this.issuer = properties.issuer();
     }
 
     public boolean validateToken(String token) {
@@ -64,6 +66,7 @@ public class JwtService {
     private Claims parseClaimsFromToken(String token) {
         return Jwts.parser()
                 .verifyWith(signingKey)
+                .requireIssuer(issuer)
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();

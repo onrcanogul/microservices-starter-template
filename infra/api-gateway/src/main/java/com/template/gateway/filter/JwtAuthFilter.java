@@ -1,5 +1,6 @@
 package com.template.gateway.filter;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
@@ -19,6 +20,7 @@ import reactor.core.publisher.Mono;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
 import java.util.Set;
 
 @Component
@@ -89,11 +91,18 @@ public class JwtAuthFilter implements GlobalFilter, Ordered {
         }
     }
 
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
     private Mono<Void> onError(ServerWebExchange exchange, String err,
                                 HttpStatus status) {
         ServerHttpResponse response = exchange.getResponse();
         response.setStatusCode(status);
-        byte[] bytes = ("{\"error\":\"" + err + "\"}").getBytes(StandardCharsets.UTF_8);
+        byte[] bytes;
+        try {
+            bytes = OBJECT_MAPPER.writeValueAsBytes(Map.of("error", err));
+        } catch (Exception e) {
+            bytes = "{\"error\":\"Authentication error\"}".getBytes(StandardCharsets.UTF_8);
+        }
         DataBuffer buffer = response.bufferFactory().wrap(bytes);
         response.getHeaders().add("Content-Type", "application/json");
         return response.writeWith(Mono.just(buffer));
