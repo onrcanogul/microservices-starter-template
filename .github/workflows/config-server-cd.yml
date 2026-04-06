@@ -1,0 +1,25 @@
+#name: Config Server CD
+#
+#on:
+#  workflow_run:
+#    workflows: ["Config Server CI"]
+#    types:
+#      - completed
+#
+#jobs:
+#  deploy:
+#    runs-on: ubuntu-latest
+#    steps:
+#      - uses: actions/checkout@v4
+#
+#      - name: Setup kubectl
+#        uses: azure/setup-kubectl@v4
+#
+#      - name: Configure kubeconfig
+#        run: |
+#          mkdir -p ~/.kube
+#          echo "${{ secrets.KUBECONFIG }}" > ~/.kube/config
+#
+#      - name: Deploy to Kubernetes
+#        run: |
+#          kubectl set image deployment/config-server config-server=onrcanogul/config-server:latest
