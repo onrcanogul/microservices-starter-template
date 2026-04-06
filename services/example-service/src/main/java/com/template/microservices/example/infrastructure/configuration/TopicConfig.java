@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Bean;
 
 import java.util.function.Function;
 
+@org.springframework.context.annotation.Configuration
 public class TopicConfig {
     @Bean
     NewTopic ordersCreated(Function<String, NewTopic> topicNamer) {

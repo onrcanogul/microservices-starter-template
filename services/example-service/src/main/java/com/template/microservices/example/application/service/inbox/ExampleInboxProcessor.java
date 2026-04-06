@@ -27,6 +27,7 @@ public class ExampleInboxProcessor extends InboxProcessor {
         this.orderService = orderService;
     }
 
+    @org.springframework.transaction.annotation.Transactional
     public void process() {
         List<Inbox> inboxes = inboxRepository.findByProcessedFalse();
         for (Inbox inbox: inboxes) {
@@ -39,6 +40,8 @@ public class ExampleInboxProcessor extends InboxProcessor {
                 PaymentFailedEvent event = getType(inbox.getPayload(), PaymentFailedEvent.class);
                 orderService.delete(event.orderId());
             }
+            inbox.setProcessed(true);
+            inboxRepository.save(inbox);
         }
     }
 }

@@ -1,5 +1,7 @@
 package com.template.microservices.example.application.service.order.impl;
 
+import com.template.core.error.StandardErrorCodes;
+import com.template.core.exception.BusinessException;
 import com.template.microservices.example.domain.entity.Order;
 import com.template.microservices.example.infrastructure.repository.OrderRepository;
 import com.template.microservices.example.application.service.order.OrderService;
@@ -23,7 +25,8 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public Order getById(Long id) {
-        return repository.findById(id).orElseThrow(() -> new NullPointerException());
+        return repository.findById(id).orElseThrow(() ->
+                BusinessException.of(StandardErrorCodes.NOT_FOUND, "Order not found with id: " + id));
     }
 
     @Override
