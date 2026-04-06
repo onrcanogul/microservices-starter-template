@@ -89,6 +89,16 @@ services:
     networks: [devnet]
 
   # ---------- Application Services ----------
+  config-server:
+    image: ghcr.io/onrcanogul/config-server:latest
+    container_name: dev-config-server
+    restart: unless-stopped
+    environment:
+      - EUREKA_URI=http://discovery-service:8761/eureka
+    ports:
+      - "8888:8888"
+    networks: [devnet]
+
   api-gateway:
     image: ghcr.io/onrcanogul/api-gateway:latest
     container_name: dev-api-gateway

@@ -1,0 +1,11 @@
+# Shared configuration for api-gateway pulled from Config Server
+# Override per-environment by adding api-gateway-{profile}.yml
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always

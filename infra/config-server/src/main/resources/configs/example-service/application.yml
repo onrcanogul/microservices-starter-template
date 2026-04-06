@@ -1,0 +1,14 @@
+# Shared configuration for example-service pulled from Config Server
+# Override per-environment by adding example-service-{profile}.yml
+
+acme:
+  messaging:
+    kafka:
+      max-attempts: 5
+      backoff-ms: 200
+      dlt-suffix: ".DLT"
+      topic-prefix: ""
+
+logging:
+  pattern:
+    level: "%5p [trace=%X{traceId:-} span=%X{spanId:-}]"
