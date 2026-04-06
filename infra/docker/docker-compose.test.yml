@@ -1,0 +1,65 @@
+# Test/CI overrides — use with:
+#   docker compose -f docker-compose.yml -f docker-compose.test.yml up -d
+#
+# Spins up only infrastructure (postgres, kafka, redis) for integration tests.
+# Application services are excluded — tests run from Maven/Gradle.
+
+version: "3.9"
+
+services:
+  postgres:
+    container_name: test-postgres
+    environment:
+      POSTGRES_USER: test
+      POSTGRES_PASSWORD: test
+      POSTGRES_DB: testdb
+    ports:
+      - "5433:5432"
+    volumes: []
+    tmpfs:
+      - /var/lib/postgresql/data
+
+  redis:
+    container_name: test-redis
+    ports:
+      - "6380:6379"
+    volumes: []
+
+  kafka:
+    container_name: test-kafka
+    environment:
+      - KAFKA_CFG_NODE_ID=1
+      - KAFKA_CFG_PROCESS_ROLES=broker,controller
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1@kafka:9093
+      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,PLAINTEXT_HOST://:19093,CONTROLLER://:9093
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:19093
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT,CONTROLLER:PLAINTEXT
+      - KAFKA_CFG_INTER_BROKER_LISTENER_NAME=PLAINTEXT
+      - KAFKA_KRAFT_CLUSTER_ID=MkU3OEVBNTcwNTJENDM2Qk
+      - ALLOW_PLAINTEXT_LISTENER=yes
+    ports:
+      - "19093:19093"
+    volumes: []
+
+  # Disable all application & UI services for test
+  kafka-ui:
+    profiles: ["disabled"]
+
+  config-server:
+    profiles: ["disabled"]
+
+  api-gateway:
+    profiles: ["disabled"]
+
+  example-service:
+    profiles: ["disabled"]
+
+  jaeger:
+    profiles: ["disabled"]
+
+  prometheus:
+    profiles: ["disabled"]
+
+  grafana:
+    profiles: ["disabled"]
