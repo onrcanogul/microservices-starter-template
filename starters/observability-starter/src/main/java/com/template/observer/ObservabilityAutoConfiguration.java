@@ -65,12 +65,5 @@ public class ObservabilityAutoConfiguration {
         };
     }
 
-    @Bean
-    @ConditionalOnProperty(prefix = "acme.obs.tracing", name = "enabled", havingValue = "true", matchIfMissing = true)
-    @ConditionalOnClass(name = "io.micrometer.tracing.Tracer")
-    org.springframework.boot.actuate.autoconfigure.observation.ObservationProperties tracingPropsBridge(
-            ObservabilityProperties props) {
-        return new org.springframework.boot.actuate.autoconfigure.observation.ObservationProperties();
-    }
 }
 

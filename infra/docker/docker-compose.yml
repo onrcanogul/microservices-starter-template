@@ -136,6 +136,7 @@ services:
       - DB_USER=app
       - DB_PASSWORD=app
       - KAFKA_BOOTSTRAP=kafka:9092
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4318/v1/traces
     ports:
       - "8080:8080"
     healthcheck:
@@ -190,6 +191,8 @@ services:
       - "3000:3000"
     volumes:
       - grafana_data:/var/lib/grafana
+      - ../grafana/provisioning:/etc/grafana/provisioning:ro
     depends_on:
       - prometheus
+      - jaeger
     networks: [devnet]

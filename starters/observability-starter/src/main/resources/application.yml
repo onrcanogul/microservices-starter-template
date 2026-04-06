@@ -8,7 +8,10 @@ management:
     distribution.percentiles-histogram:
       http.server.requests: true
   tracing:
-    sampling.probability: 0.10
+    sampling.probability: ${TRACING_SAMPLING_PROBABILITY:0.10}
+  otlp:
+    tracing:
+      endpoint: ${OTEL_EXPORTER_OTLP_ENDPOINT:http://localhost:4318/v1/traces}
 
 acme:
   obs:

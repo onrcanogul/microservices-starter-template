@@ -46,6 +46,10 @@
 			<groupId>com.acme.enterprise</groupId>
 			<artifactId>inbox-starter</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>com.acme.enterprise</groupId>
+			<artifactId>observability-starter</artifactId>
+		</dependency>
 
 		<!-- Internal commons -->
 		<dependency>
