@@ -15,6 +15,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Service
@@ -41,7 +42,7 @@ public class OutboxProcessor {
                 Class<? extends Event> clazz = eventClassResolver.resolve(outbox.getType());
                 Event eventObj = objectMapper.readValue(outbox.getPayload(), clazz);
                 publisher.publish(outbox.getDestination(), outbox.getType(), eventObj, createHeader(outbox))
-                        .get();
+                        .get(5, TimeUnit.SECONDS);
                 outbox.setPublished(true);
                 repository.save(outbox);
             } catch (Exception e) {
