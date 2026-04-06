@@ -1,0 +1,12 @@
+spring:
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+
+acme:
+  cache:
+    enabled: true
+    default-ttl: 10m
+    key-prefix: "cache:"
+    use-key-prefix: true

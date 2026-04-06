@@ -23,5 +23,6 @@
         <module>outbox-starter</module>
         <module>inbox-starter</module>
         <module>resilience-starter</module>
+        <module>cache-starter</module>
     </modules>
 </project>

@@ -123,6 +123,11 @@
                 <artifactId>resilience-starter</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <dependency>
+                <groupId>com.acme.enterprise</groupId>
+                <artifactId>cache-starter</artifactId>
+                <version>${project.version}</version>
+            </dependency>
 
             <!-- Springdoc OpenAPI -->
             <dependency>
