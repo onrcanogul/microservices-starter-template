@@ -20,11 +20,17 @@ spring:
             - Path=/example/**
           filters:
             - RewritePath=/example/(?<segment>.*), /api/example/${segment}
-#            - name: RequestRateLimiter
-#              args:
-#                redis-rate-limiter.replenishRate: 10
-#                redis-rate-limiter.burstCapacity: 20
-#                key-resolver: "#{@ipKeyResolver}"
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: ${RATE_LIMIT_RPS:10}
+                redis-rate-limiter.burstCapacity: ${RATE_LIMIT_BURST:20}
+                redis-rate-limiter.requestedTokens: 1
+                key-resolver: "#{@ipKeyResolver}"
+
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
 
 eureka:
   client:

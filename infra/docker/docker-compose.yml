@@ -7,6 +7,7 @@ volumes:
   pg_data: {}
   grafana_data: {}
   kafka_data: {}
+  redis_data: {}
 
 services:
   # ---------- Database ----------
@@ -24,6 +25,22 @@ services:
       - pg_data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U app -d appdb"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    networks: [devnet]
+
+  # ---------- Cache / Rate-Limiting ----------
+  redis:
+    image: redis:7-alpine
+    container_name: dev-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
       interval: 5s
       timeout: 3s
       retries: 20
@@ -78,11 +95,13 @@ services:
     restart: unless-stopped
     environment:
       - JWT_SECRET=${JWT_SECRET}
+      - REDIS_HOST=redis
     ports:
       - "8000:8000"
     depends_on:
       - postgres
       - kafka
+      - redis
     networks: [devnet]
 
   example-service:
