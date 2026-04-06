@@ -12,8 +12,15 @@ spring:
         jdbc.batch_size: 50
   datasource:
     hikari:
-      maximum-pool-size: 10
+      maximum-pool-size: ${DB_POOL_SIZE:10}
       minimum-idle: 2
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      leak-detection-threshold: 60000
+      validation-timeout: 5000
+      keepalive-time: 300000
+      pool-name: ${spring.application.name:app}-pool
 
 acme:
   persistence:
@@ -27,3 +34,12 @@ acme:
       auditing-enabled: true
     tx:
       default-timeout-seconds: 30
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout-ms: 30000
+      idle-timeout-ms: 600000
+      max-lifetime-ms: 1800000
+      leak-detection-threshold-ms: 60000
+      validation-timeout-ms: 5000
+      keepalive-time-ms: 300000
