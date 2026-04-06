@@ -1,6 +1,9 @@
 management:
   endpoints.web.exposure.include: health,info,prometheus
   endpoint.health.show-details: when_authorized
+  endpoint.health.probes.enabled: true
+  health.livenessstate.enabled: true
+  health.readinessstate.enabled: true
   metrics:
     tags:
       app: ${spring.application.name}
@@ -24,6 +27,13 @@ acme:
 
 logging:
   pattern.level: "%5p [trace_id:%X{traceId} span_id:%X{spanId}]"
+
+server:
+  shutdown: graceful
+
+spring:
+  lifecycle:
+    timeout-per-shutdown-phase: 30s
 
 
 #FOR EACH SERVICE :

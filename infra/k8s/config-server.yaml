@@ -1,49 +1,52 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: eureka-server
+  name: config-server
   labels:
-    app: eureka-server
+    app: config-server
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: eureka-server
+      app: config-server
   template:
     metadata:
       labels:
-        app: eureka-server
+        app: config-server
     spec:
       terminationGracePeriodSeconds: 60
       containers:
-        - name: eureka-server
-          image: ghcr.io/onrcanogul/discovery-service:latest
+        - name: config-server
+          image: ghcr.io/onrcanogul/config-server:latest
           ports:
-            - containerPort: 8761
+            - containerPort: 8888
+          env:
+            - name: EUREKA_URI
+              value: http://eureka-server:8761/eureka
           resources:
             requests:
               cpu: 200m
               memory: 256Mi
             limits:
               cpu: 400m
-              memory: 512Mi
+              memory: 384Mi
           startupProbe:
             httpGet:
               path: /actuator/health/liveness
-              port: 8761
+              port: 8888
             initialDelaySeconds: 10
             periodSeconds: 5
             failureThreshold: 30
           livenessProbe:
             httpGet:
               path: /actuator/health/liveness
-              port: 8761
+              port: 8888
             periodSeconds: 10
             failureThreshold: 3
           readinessProbe:
             httpGet:
               path: /actuator/health/readiness
-              port: 8761
+              port: 8888
             periodSeconds: 5
             failureThreshold: 3
           lifecycle:
@@ -54,11 +57,11 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: eureka-server
+  name: config-server
 spec:
   selector:
-    app: eureka-server
+    app: config-server
   ports:
-    - port: 8761
-      targetPort: 8761
+    - port: 8888
+      targetPort: 8888
   type: ClusterIP
