@@ -58,10 +58,23 @@ public class SecurityAutoConfiguration {
 	public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http,
 														  JwtAuthenticationFilter jwtAuthenticationFilter,
 														  AuthenticationEntryPoint authenticationEntryPoint,
-														  AccessDeniedHandler accessDeniedHandler) throws Exception {
+														  AccessDeniedHandler accessDeniedHandler,
+														  SecurityProperties properties) throws Exception {
 		return http
 				.csrf(csrf -> csrf.disable())
-				.authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
+				.authorizeHttpRequests(auth -> {
+					auth.requestMatchers(
+							"/v3/api-docs/**",
+							"/swagger-ui/**",
+							"/swagger-ui.html",
+							"/actuator/health",
+							"/actuator/info"
+					).permitAll();
+					if (properties.publicPaths() != null) {
+						auth.requestMatchers(properties.publicPaths()).permitAll();
+					}
+					auth.anyRequest().authenticated();
+				})
 				.sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 				.exceptionHandling(ex -> ex
 						.authenticationEntryPoint(authenticationEntryPoint)

@@ -24,5 +24,11 @@
             <groupId>com.acme.enterprise</groupId>
             <artifactId>common-core</artifactId>
         </dependency>
+
+        <!-- OpenAPI / Swagger UI -->
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+        </dependency>
     </dependencies>
 </project>

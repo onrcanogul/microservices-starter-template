@@ -6,7 +6,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public record SecurityProperties(
     String secret,
     long expirationMs,
-    String issuer
+    String issuer,
+    String[] publicPaths
 ) {
     public SecurityProperties {
         if (secret == null || secret.isBlank()) {

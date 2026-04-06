@@ -4,3 +4,10 @@ acme:
       format: problem_detail
       include-message: true
       include-stack-trace: false
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operationsSorter: method
