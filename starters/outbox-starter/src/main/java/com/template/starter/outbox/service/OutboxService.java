@@ -7,6 +7,7 @@ import com.template.starter.outbox.entity.Outbox;
 import com.template.starter.outbox.repository.OutboxRepository;
 import org.springframework.stereotype.Service;
 
+import java.io.UncheckedIOException;
 import java.time.Instant;
 
 @Service
@@ -37,7 +38,7 @@ public class OutboxService {
                     .payload(objectMapper.writeValueAsString(event))
                     .build());
         } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+            throw new UncheckedIOException("Failed to serialize outbox event: " + event.getClass().getSimpleName(), e);
         }
     }
 }
