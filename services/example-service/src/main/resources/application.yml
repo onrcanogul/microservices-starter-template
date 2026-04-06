@@ -1,6 +1,20 @@
 spring:
   application:
     name: example-service
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/appdb}
+    username: ${DB_USER:app}
+    password: ${DB_PASSWORD:app}
+    hikari:
+      maximum-pool-size: ${DB_POOL_SIZE:10}
+      minimum-idle: 2
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: none
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
   eureka:
     client:
       service-url:
@@ -48,16 +62,6 @@ logging:
 
 server:
   port: 8080
-
-
-
-#per:
-#  datasource:
-#    url: jdbc:oracle:thin:@//localhost:1521/FREEPDB1
-#    username: ACCOUNT
-#    password: account
-#    pool-size: 10
-#  messaging:
 #    kafka:
 #      max-attempts: 5
 #      backoff-ms: 200

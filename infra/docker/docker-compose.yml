@@ -109,11 +109,17 @@ services:
     restart: unless-stopped
     environment:
       - JWT_SECRET=${JWT_SECRET}
+      - DB_URL=jdbc:postgresql://postgres:5432/appdb
+      - DB_USER=app
+      - DB_PASSWORD=app
+      - KAFKA_BOOTSTRAP=kafka:9092
     ports:
       - "8080:8080"
     depends_on:
-      - postgres
-      - kafka
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
     networks: [devnet]
 
   # ---------- Observability ----------
