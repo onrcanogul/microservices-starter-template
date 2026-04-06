@@ -37,3 +37,9 @@ build/
 .env
 .env.local
 .env.production
+
+# Personal learning docs (not for repo)
+docs/
+
+# Copilot instructions (personal config)
+.github/copilot-instructions.md

@@ -22,5 +22,6 @@
         <module>kafka-starter</module>
         <module>outbox-starter</module>
         <module>inbox-starter</module>
+        <module>resilience-starter</module>
     </modules>
 </project>

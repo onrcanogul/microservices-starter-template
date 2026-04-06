@@ -1,0 +1,50 @@
+# ── Resilience4j Enterprise Defaults ──
+# Services can override any value in their own application.yml
+# or via config-server per-service config.
+
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        sliding-window-type: COUNT_BASED
+        sliding-window-size: 10
+        minimum-number-of-calls: 5
+        failure-rate-threshold: 50
+        wait-duration-in-open-state:
+          seconds: 10
+        permitted-number-of-calls-in-half-open-state: 3
+        slow-call-duration-threshold:
+          seconds: 2
+        slow-call-rate-threshold: 80
+        register-health-indicator: true
+        event-consumer-buffer-size: 100
+
+  retry:
+    configs:
+      default:
+        max-attempts: 3
+        wait-duration:
+          seconds: 1
+        enable-exponential-backoff: true
+        exponential-backoff-multiplier: 2.0
+        retry-exceptions:
+          - java.io.IOException
+          - java.util.concurrent.TimeoutException
+
+  bulkhead:
+    configs:
+      default:
+        max-concurrent-calls: 25
+        max-wait-duration: 0
+
+  timelimiter:
+    configs:
+      default:
+        timeout-duration:
+          seconds: 3
+        cancel-running-future: true
+
+acme:
+  resilience:
+    log-state-transitions: true
+    log-retry-attempts: true
