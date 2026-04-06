@@ -14,7 +14,7 @@ import java.util.UUID;
 @Builder @NoArgsConstructor @AllArgsConstructor
 public class Inbox {
     @Id
-    @Column(name = "IDEMPOTENT_TOKEN")
+    @Column(name = "IDEMPOTENT_TOKEN", unique = true)
     private UUID idempotentToken;
     @Column(name = "PAYLOAD")
     private String payload;
