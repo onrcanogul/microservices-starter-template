@@ -1,0 +1,2 @@
+com.template.starter.webclient.WebClientAutoConfiguration
+com.template.starter.webclient.WebClientResilienceConfiguration

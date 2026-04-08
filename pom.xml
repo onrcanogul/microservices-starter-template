@@ -133,6 +133,11 @@
                 <artifactId>saga-starter</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <dependency>
+                <groupId>com.acme.enterprise</groupId>
+                <artifactId>webclient-starter</artifactId>
+                <version>${project.version}</version>
+            </dependency>
 
             <!-- Springdoc OpenAPI -->
             <dependency>

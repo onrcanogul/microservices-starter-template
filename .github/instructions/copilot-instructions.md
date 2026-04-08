@@ -176,6 +176,7 @@ com.template.microservices.<service-name>/
 | `acme.cache.*` | cache-starter | `CacheProperties` |
 | `acme.resilience.*` | resilience-starter | `ResilienceProperties` |
 | `acme.web.error.*` | common-web | `WebErrorProperties` |
+| `acme.webclient.*` | webclient-starter | `WebClientProperties` |
 
 ## Key Files Reference
 

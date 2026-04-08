@@ -52,6 +52,14 @@
 		</dependency>
 		<dependency>
 			<groupId>com.acme.enterprise</groupId>
+			<artifactId>webclient-starter</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.acme.enterprise</groupId>
+			<artifactId>resilience-starter</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.acme.enterprise</groupId>
 			<artifactId>observability-starter</artifactId>
 		</dependency>
 

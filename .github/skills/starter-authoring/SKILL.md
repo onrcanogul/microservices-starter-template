@@ -165,6 +165,7 @@ Established namespace prefixes:
 | `acme.outbox.*` | outbox-starter | ⚠️ `@ConditionalOnProperty` uses `outbox.scheduler` (no `acme.` prefix — known inconsistency) |
 | `acme.inbox.*` | inbox-starter |
 | `acme.web.error.*` | common-web |
+| `acme.webclient.*` | webclient-starter |
 
 Use a `*Properties` class, not `@Value` annotations. Register with `@EnableConfigurationProperties`. Note: outbox-starter and inbox-starter currently use `@Value` — this should be migrated to `*Properties` classes.
 

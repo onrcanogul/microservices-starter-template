@@ -25,5 +25,6 @@
         <module>resilience-starter</module>
         <module>cache-starter</module>
         <module>saga-starter</module>
+        <module>webclient-starter</module>
     </modules>
 </project>
