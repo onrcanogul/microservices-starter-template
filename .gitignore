@@ -47,3 +47,13 @@ docs/
 
 # Personal learning docs (not for repo)
 docs/
+.github/agents/x.agent.md
+.github/agents/ui-ux-design-specialist.agent.md
+.github/agents/code-reviewer.agent.md
+.github/prompts/copilot-instructions.md
+.gitignore
+.github/prompts/generate-skills.prompt.md
+.gitignore
+.github/prompts/generate-skill.prompt.md
+.gitignore
+.github/prompts/review-skill.prompt.md
