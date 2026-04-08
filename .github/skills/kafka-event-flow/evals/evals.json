@@ -1,0 +1,30 @@
+{
+  "skill_name": "kafka-event-flow",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I need to create a new Kafka topic for payment events. Where do I define it and do I need a DLT?",
+      "expected_output": "Creates TopicConfig with topicNamer.apply() bean for the topic and a matching DLT topic using getDltSuffix()"
+    },
+    {
+      "id": 2,
+      "prompt": "I'm getting a deserialization error: 'The class is not in the trusted packages'. My events are in com.mycompany.payments package.",
+      "expected_output": "Explains trusted-packages config under acme.messaging.kafka, shows how to add the package comma-separated"
+    },
+    {
+      "id": 3,
+      "prompt": "How do I create a consumer for shipping events that handles duplicate messages?",
+      "expected_output": "Creates Consumer<ShippingEvent> with @KafkaListener and containerFactory, delegates to inboxService.save(wrapper)"
+    },
+    {
+      "id": 4,
+      "prompt": "What happens when a Kafka consumer throws a BusinessException? Does it retry?",
+      "expected_output": "Explains that BusinessException is explicitly marked not-retryable and goes straight to the DLT"
+    },
+    {
+      "id": 5,
+      "prompt": "I want to define a new event record for inventory reservation. What interfaces does it need to implement and where should I put it?",
+      "expected_output": "Creates a record implementing Event interface, places it in infrastructure/messaging/ package under com.template"
+    }
+  ]
+}

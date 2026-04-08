@@ -1,0 +1,35 @@
+{
+  "skill_name": "outbox-inbox-pattern",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I need to publish a PaymentCompletedEvent when a payment is processed, but I need to make sure the event is never lost even if Kafka is down. How do I do this?",
+      "expected_output": "Creates an OutboxService.save() call inside the payment transaction, implements Producer<PaymentCompletedEvent>, adds the outbox Flyway migration"
+    },
+    {
+      "id": 2,
+      "prompt": "We're seeing duplicate order processing in production. Orders are getting created twice when Kafka redelivers messages. How do I prevent this?",
+      "expected_output": "Explains the inbox pattern: consumer writes to InboxService.save(wrapper) for dedup, then InboxProcessor handles once; adds inbox migration and InboxProcessor implementation"
+    },
+    {
+      "id": 3,
+      "prompt": "I'm getting 'Event type not in allowed packages' error when the OutboxProcessor tries to publish events. My events are in com.mycompany.events package.",
+      "expected_output": "Explains EventClassResolver ALLOWED_PACKAGES whitelist, shows how to register custom events via eventClassResolver.register()"
+    },
+    {
+      "id": 4,
+      "prompt": "How do I add outbox and inbox support to my new shipping-service? What Flyway migrations do I need?",
+      "expected_output": "Provides both migration SQL files with partial indexes, shows the POM dependencies for outbox-starter and inbox-starter"
+    },
+    {
+      "id": 5,
+      "prompt": "I need to create an InboxProcessor that handles three different event types. Can you show me how?",
+      "expected_output": "Extends InboxProcessor, implements process() with @Transactional, dispatches by inbox.getType() comparison with event class names, uses getType() to deserialize"
+    },
+    {
+      "id": 6,
+      "prompt": "Our outbox table is growing to millions of rows and queries are slowing down. How do I configure cleanup?",
+      "expected_output": "Configures acme.outbox.cleanup.cron and retention-days; explains the partial index on is_published=FALSE keeps polling fast; suggests monitoring table size"
+    }
+  ]
+}

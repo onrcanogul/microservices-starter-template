@@ -1,0 +1,30 @@
+{
+  "skill_name": "api-gateway-patterns",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I need to add a new route in the API gateway for my notification-service. It should be rate limited and rewrite the path.",
+      "expected_output": "Adds YAML route with lb://notification-service, Path predicate, RewritePath filter, and RequestRateLimiter with ipKeyResolver"
+    },
+    {
+      "id": 2,
+      "prompt": "I want to add /api/public/catalog to the list of paths that don't require JWT authentication in the gateway.",
+      "expected_output": "Adds the path to OPEN_PATHS Set in JwtAuthFilter"
+    },
+    {
+      "id": 3,
+      "prompt": "I'm trying to use the security-starter's JwtAuthenticationFilter in the gateway but getting errors about servlet classes. What's wrong?",
+      "expected_output": "Explains the gateway is reactive (WebFlux) and security-starter is servlet-based; gateway uses its own reactive JwtAuthFilter with GlobalFilter interface"
+    },
+    {
+      "id": 4,
+      "prompt": "How does the gateway pass user identity to downstream services after JWT validation?",
+      "expected_output": "Explains X-User-Id and X-User-Email headers injected via exchange.mutate() after JWT claim extraction"
+    },
+    {
+      "id": 5,
+      "prompt": "I need to return a JSON error response from a custom gateway filter when something goes wrong. How do I do this reactively?",
+      "expected_output": "Shows the DataBuffer pattern with response.bufferFactory().wrap() and response.writeWith(Mono.just(buffer))"
+    }
+  ]
+}

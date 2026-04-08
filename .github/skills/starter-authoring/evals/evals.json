@@ -1,0 +1,30 @@
+{
+  "skill_name": "starter-authoring",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I want to create a new starter for email notifications. Where do I put the files and how do I set up the auto-configuration?",
+      "expected_output": "Creates starters/email-starter/ with @AutoConfiguration, EnableConfigurationProperties, META-INF registration, marker class, and acme.email.* properties"
+    },
+    {
+      "id": 2,
+      "prompt": "My custom starter's bean keeps getting created even when the library it wraps isn't on the classpath. How do I make it conditional?",
+      "expected_output": "Adds @ConditionalOnClass for the library's main class on the AutoConfiguration"
+    },
+    {
+      "id": 3,
+      "prompt": "I need to add JPA repositories and entity scanning to my new starter. How do I do the package scanning correctly?",
+      "expected_output": "Creates a marker class and uses basePackageClasses on @ComponentScan, @EnableJpaRepositories, and @EntityScan"
+    },
+    {
+      "id": 4,
+      "prompt": "How do I let services override the default bean from my starter?",
+      "expected_output": "Shows @ConditionalOnMissingBean on every @Bean method in the AutoConfiguration"
+    },
+    {
+      "id": 5,
+      "prompt": "What property namespace should I use for my new audit-log-starter and where do I configure it?",
+      "expected_output": "Uses acme.audit-log.* prefix with a @ConfigurationProperties class, registers via @EnableConfigurationProperties"
+    }
+  ]
+}

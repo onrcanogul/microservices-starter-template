@@ -1,0 +1,30 @@
+{
+  "skill_name": "error-handling",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I need to add a custom error code for when a user tries to place an order but their account is suspended. Where should I define this and how do I throw it from the service?",
+      "expected_output": "Creates a service-specific enum implementing ErrorCode with an ACCOUNT_SUSPENDED entry, throws BusinessException.of() in the service layer"
+    },
+    {
+      "id": 2,
+      "prompt": "My API is returning 200 with success:false for validation errors. How do I fix this to return proper 400 status codes?",
+      "expected_output": "Identifies that the issue is likely a custom exception handler overriding GlobalExceptionHandler; explains that the pipeline already handles MethodArgumentNotValidException with 400"
+    },
+    {
+      "id": 3,
+      "prompt": "We want to switch our error response format to RFC 9457 ProblemDetail for our public API. How do I configure this?",
+      "expected_output": "Sets acme.web.error.format to PROBLEM_DETAIL in application.yml"
+    },
+    {
+      "id": 4,
+      "prompt": "I'm catching BusinessException in my controller to return a custom error response. The code review says this is wrong — why?",
+      "expected_output": "Explains that GlobalExceptionHandler already maps BusinessException to the correct HTTP status and error structure; catching in controllers bypasses trace correlation and format consistency"
+    },
+    {
+      "id": 5,
+      "prompt": "How do I include the requested quantity and available stock in the error response when an order fails due to insufficient inventory?",
+      "expected_output": "Uses BusinessException.of() with a metadata Map containing 'requested' and 'available' keys; explains these appear in the details field"
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "skill_name": "testing-patterns",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I need to write a unit test for my PaymentServiceImpl.processPayment() method that should throw a BusinessException when insufficient funds.",
+      "expected_output": "Uses @ExtendWith(MockitoExtension.class) with @Mock/@InjectMocks, test named processPayment_shouldThrowBusinessException_whenInsufficientFunds, asserts with assertThatThrownBy"
+    },
+    {
+      "id": 2,
+      "prompt": "How do I write a controller test for my OrderController? I keep getting errors about missing beans.",
+      "expected_output": "Uses @WebMvcTest(OrderController.class) with @MockitoBean for all dependencies including EventPublisher, asserts ApiResponse structure with jsonPath"
+    },
+    {
+      "id": 3,
+      "prompt": "I want to write an integration test that tests my repository with a real PostgreSQL database. How do I set this up?",
+      "expected_output": "Extends AbstractPostgresIntegrationTest, uses @SpringBootTest with @ActiveProfiles('test')"
+    },
+    {
+      "id": 4,
+      "prompt": "My tests are failing with 'JWT secret must be at least 64 characters'. How do I fix the test configuration?",
+      "expected_output": "Updates application-test.yml acme.security.jwt.secret to a string at least 64 characters long"
+    },
+    {
+      "id": 5,
+      "prompt": "I need a full integration test that tests the complete flow from Kafka consumer to database persistence. Which base class should I use?",
+      "expected_output": "Extends AbstractFullIntegrationTest which provides both Postgres and Kafka Testcontainers"
+    },
+    {
+      "id": 6,
+      "prompt": "My tests fail with 'connection refused to config server'. How do I make tests work without the config server running?",
+      "expected_output": "Adds spring.config.import: optional:configserver: to application-test.yml and eureka.client.enabled: false"
+    }
+  ]
+}

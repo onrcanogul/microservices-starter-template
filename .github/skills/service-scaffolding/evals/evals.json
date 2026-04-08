@@ -1,0 +1,30 @@
+{
+  "skill_name": "service-scaffolding",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I need to create a new payment-service microservice. Walk me through the full setup.",
+      "expected_output": "Follows the 8-step checklist: copies example-service, updates identifiers, adds to parent POM, creates config server config, adds gateway route, creates Flyway migrations, creates CI/CD workflows, adds K8s manifests"
+    },
+    {
+      "id": 2,
+      "prompt": "What's the correct package structure for a new inventory-service? I want to handle stock reservations via Kafka events.",
+      "expected_output": "Creates the full layered structure: api/controller, application/service with interface+impl, domain/entity, infrastructure/messaging with consumer+producer, infrastructure/repository, infrastructure/configuration/TopicConfig"
+    },
+    {
+      "id": 3,
+      "prompt": "I have my entity and repository set up. Now I need to add the controller. How should it look?",
+      "expected_output": "Creates a thin REST controller that delegates to the service, wraps all responses in ApiResponse<T>, uses @Valid for request validation, returns proper HTTP status codes"
+    },
+    {
+      "id": 4,
+      "prompt": "I want to add a new route in the API gateway for my user-service. How do I configure it?",
+      "expected_output": "Adds route YAML with lb://user-service URI, Path predicate, RewritePath filter, and RequestRateLimiter with ipKeyResolver"
+    },
+    {
+      "id": 5,
+      "prompt": "What Flyway migration files do I need for a service that produces and consumes Kafka events?",
+      "expected_output": "Creates V1 for business table with audit columns, V2 for outbox table with partial index, V3 for inbox table with partial index"
+    }
+  ]
+}

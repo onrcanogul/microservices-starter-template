@@ -1,0 +1,30 @@
+{
+  "skill_name": "security-jwt-flow",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "How do I access the currently authenticated user's ID and email in my controller?",
+      "expected_output": "Shows injecting Authentication parameter, casting principal to AuthenticatedUser record, accessing userId() and email()"
+    },
+    {
+      "id": 2,
+      "prompt": "I need to make my /api/webhooks endpoint publicly accessible without JWT authentication. How?",
+      "expected_output": "Adds the path to acme.security.jwt.public-paths array in application.yml"
+    },
+    {
+      "id": 3,
+      "prompt": "My service fails to start with 'JWT secret must be at least 64 characters'. What's the minimum required?",
+      "expected_output": "Explains SecurityProperties record validates secret ≥64 chars in compact constructor, shows how to set JWT_SECRET env var"
+    },
+    {
+      "id": 4,
+      "prompt": "I want to override the default SecurityFilterChain to add custom authorization rules. Can I do this without breaking the JWT filter?",
+      "expected_output": "Explains @ConditionalOnMissingBean allows full override, shows how to define a custom SecurityFilterChain that still includes the JwtAuthenticationFilter"
+    },
+    {
+      "id": 5,
+      "prompt": "What's the difference between the JWT filter in the API gateway and the one in my service? They seem to do the same thing.",
+      "expected_output": "Explains two-layer architecture: gateway is reactive (GlobalFilter/Mono/WebFlux), service is servlet (OncePerRequestFilter); gateway propagates X-User-Id headers, service sets SecurityContext; both validate independently"
+    }
+  ]
+}
