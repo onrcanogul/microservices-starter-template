@@ -55,6 +55,9 @@ public class OutboxProcessor {
         Map<String, String> headers = new LinkedHashMap<>();
         headers.put(MessageHeaders.TRACE_ID, UUID.randomUUID().toString());
         headers.put(MessageHeaders.KEY, outbox.getType());
+        if (outbox.getCorrelationId() != null) {
+            headers.put(MessageHeaders.CORRELATION_ID, outbox.getCorrelationId());
+        }
         return headers;
     }
 }

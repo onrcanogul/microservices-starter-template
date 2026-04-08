@@ -24,5 +24,6 @@
         <module>inbox-starter</module>
         <module>resilience-starter</module>
         <module>cache-starter</module>
+        <module>saga-starter</module>
     </modules>
 </project>

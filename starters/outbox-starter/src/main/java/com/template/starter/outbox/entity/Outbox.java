@@ -32,6 +32,8 @@ public class Outbox {
 
     @Column(name = "DESTINATION")
     private String destination;
+    @Column(name = "CORRELATION_ID")
+    private String correlationId;
     @Column(name = "IS_PUBLISHED")
     private boolean published = false;
     @Column(name = "CREATED_AT")

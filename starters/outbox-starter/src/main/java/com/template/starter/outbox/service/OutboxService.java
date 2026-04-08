@@ -26,6 +26,16 @@ public class OutboxService {
             Class<?> aggregateType,
             String aggregateId
     ){
+        save(destination, event, aggregateType, aggregateId, null);
+    }
+
+    public void save(
+            String destination,
+            Event event,
+            Class<?> aggregateType,
+            String aggregateId,
+            String correlationId
+    ){
         try {
             outboxRepository.save(Outbox
                     .builder()
@@ -35,6 +45,7 @@ public class OutboxService {
                     .published(false)
                     .aggregateType(aggregateType.getTypeName())
                     .aggregateId(aggregateId)
+                    .correlationId(correlationId)
                     .payload(objectMapper.writeValueAsString(event))
                     .build());
         } catch (JsonProcessingException e) {
