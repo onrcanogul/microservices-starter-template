@@ -11,10 +11,10 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>saga-starter</artifactId>
-    <name>saga-starter</name>
-    <description>Saga pattern starter — orchestration-based sagas with persistent state
-        and choreography-based saga enhancements (rollback registry, correlation propagation).</description>
+    <artifactId>scheduler-lock-starter</artifactId>
+    <name>scheduler-lock-starter</name>
+    <description>Redis-backed distributed scheduler locking via ShedLock.
+        Ensures @Scheduled tasks (outbox, inbox, saga) run on at most one instance in a cluster.</description>
 
     <dependencies>
         <dependency>
@@ -22,29 +22,16 @@
             <artifactId>spring-boot-starter</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.acme.enterprise</groupId>
-            <artifactId>common-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.acme.enterprise</groupId>
-            <artifactId>common-messaging</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.acme.enterprise</groupId>
-            <artifactId>persistence-starter</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
         </dependency>
         <dependency>
             <groupId>net.javacrumbs.shedlock</groupId>
             <artifactId>shedlock-spring</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <scope>provided</scope>
+            <groupId>net.javacrumbs.shedlock</groupId>
+            <artifactId>shedlock-provider-redis-spring</artifactId>
         </dependency>
 
         <!-- Test -->

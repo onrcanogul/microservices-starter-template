@@ -22,6 +22,7 @@
         <spring-boot.version>3.5.5</spring-boot.version>
         <spring-cloud.version>2025.0.0</spring-cloud.version>
         <resilience4j.version>2.2.0</resilience4j.version>
+        <shedlock.version>5.16.0</shedlock.version>
         <springdoc.version>2.8.6</springdoc.version>
         <testcontainers.version>1.20.4</testcontainers.version>
         <maven.compiler.release>${java.version}</maven.compiler.release>
@@ -135,8 +136,25 @@
             </dependency>
             <dependency>
                 <groupId>com.acme.enterprise</groupId>
+                <artifactId>scheduler-lock-starter</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.acme.enterprise</groupId>
                 <artifactId>webclient-starter</artifactId>
                 <version>${project.version}</version>
+            </dependency>
+
+            <!-- ShedLock -->
+            <dependency>
+                <groupId>net.javacrumbs.shedlock</groupId>
+                <artifactId>shedlock-spring</artifactId>
+                <version>${shedlock.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>net.javacrumbs.shedlock</groupId>
+                <artifactId>shedlock-provider-redis-spring</artifactId>
+                <version>${shedlock.version}</version>
             </dependency>
 
             <!-- Springdoc OpenAPI -->

@@ -5,6 +5,7 @@ import com.template.starter.saga.entity.SagaInstance;
 import com.template.starter.saga.property.SagaProperties;
 import com.template.starter.saga.repository.SagaInstanceRepository;
 import lombok.extern.slf4j.Slf4j;
+import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,6 +38,7 @@ public class SagaScheduler {
      * STARTED sagas that failed before any step ran are marked FAILED.
      */
     @Scheduled(fixedDelayString = "#{@sagaProperties.schedulerRate.toMillis()}")
+    @SchedulerLock(name = "saga_detectStuckSagas", lockAtMostFor = "PT10M", lockAtLeastFor = "PT5S")
     @Transactional
     public void detectStuckSagas() {
         Instant now = Instant.now();
@@ -78,6 +80,7 @@ public class SagaScheduler {
      * Cleanup old completed/compensated/failed sagas based on retention policy.
      */
     @Scheduled(cron = "#{@sagaProperties.cleanup.cron}")
+    @SchedulerLock(name = "saga_cleanup", lockAtMostFor = "PT1H", lockAtLeastFor = "PT5M")
     @Transactional
     public void cleanup() {
         Instant cutoff = Instant.now().minus(properties.getCleanup().getRetention());

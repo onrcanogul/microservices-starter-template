@@ -1,6 +1,7 @@
 package com.template.starter.inbox.service;
 
 import com.template.starter.inbox.repository.InboxRepository;
+import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,11 +28,13 @@ public class InboxScheduler {
     }
 
     @Scheduled(fixedRateString = "${acme.inbox.scheduler.rate:1500}")
+    @SchedulerLock(name = "inbox_process", lockAtMostFor = "PT5M", lockAtLeastFor = "PT1S")
     public void process() {
         processor.process();
     }
 
     @Scheduled(cron = "${acme.inbox.cleanup.cron:0 0 3 * * *}")
+    @SchedulerLock(name = "inbox_cleanup", lockAtMostFor = "PT1H", lockAtLeastFor = "PT5M")
     @Transactional
     public void cleanup() {
         Instant cutoff = Instant.now().minus(retentionPeriod);

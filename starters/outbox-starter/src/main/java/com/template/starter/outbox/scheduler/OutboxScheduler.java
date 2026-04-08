@@ -3,6 +3,7 @@ package com.template.starter.outbox.scheduler;
 import com.template.starter.outbox.processor.OutboxProcessor;
 import com.template.starter.outbox.repository.OutboxRepository;
 import lombok.extern.slf4j.Slf4j;
+import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -27,11 +28,13 @@ public class OutboxScheduler {
     }
 
     @Scheduled(fixedRateString = "${acme.outbox.scheduler.rate:1500}")
+    @SchedulerLock(name = "outbox_run", lockAtMostFor = "PT5M", lockAtLeastFor = "PT1S")
     public void run() {
         processor.process();
     }
 
     @Scheduled(cron = "${acme.outbox.cleanup.cron:0 0 3 * * *}")
+    @SchedulerLock(name = "outbox_cleanup", lockAtMostFor = "PT1H", lockAtLeastFor = "PT5M")
     @Transactional
     public void cleanup() {
         Instant cutoff = Instant.now().minus(retentionPeriod);
