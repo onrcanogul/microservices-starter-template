@@ -6,6 +6,7 @@ import com.template.microservices.example.application.service.saga.CreateOrderSa
 import com.template.microservices.example.domain.entity.Order;
 import com.template.microservices.example.infrastructure.messaging.OrderCreatedEvent;
 import com.template.microservices.example.application.service.order.OrderService;
+import com.template.starter.idempotency.Idempotent;
 import com.template.starter.saga.orchestration.SagaDefinition;
 import com.template.starter.saga.orchestration.SagaOrchestrator;
 import org.springframework.http.ResponseEntity;
@@ -40,12 +41,14 @@ public class OrderController {
     }
 
     @PostMapping
+    @Idempotent
     public void publish(@RequestBody OrderCreatedEvent body) {
         publisher.publish("orders.created", "order.created", body,
                 Map.of("x-key", String.valueOf(body.orderId())));
     }
 
     @PostMapping("/saga")
+    @Idempotent(ttlSeconds = 3600)
     public ResponseEntity<ApiResponse<UUID>> createOrderViaSaga(@RequestBody OrderCreatedEvent body) {
         CreateOrderSagaContext context = new CreateOrderSagaContext(
                 body.orderId(), body.sku(), body.amount(), false, false);

@@ -144,6 +144,11 @@
                 <artifactId>webclient-starter</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <dependency>
+                <groupId>com.acme.enterprise</groupId>
+                <artifactId>idempotency-starter</artifactId>
+                <version>${project.version}</version>
+            </dependency>
 
             <!-- ShedLock -->
             <dependency>

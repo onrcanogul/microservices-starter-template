@@ -27,5 +27,6 @@
         <module>saga-starter</module>
         <module>scheduler-lock-starter</module>
         <module>webclient-starter</module>
+        <module>idempotency-starter</module>
     </modules>
 </project>
