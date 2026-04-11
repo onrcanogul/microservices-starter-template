@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <!--
+      Structured Logging Configuration (logging-starter)
+
+      Profile-based activation:
+        - "json-logging" profile OR acme.logging.json-enabled=true → JSON output (LogstashEncoder)
+        - Default → human-readable Spring Boot console pattern with MDC fields
+
+      MDC keys automatically included in JSON output:
+        traceId, spanId (from observability-starter/Micrometer)
+        userId, userEmail, correlationId, requestMethod, requestUri (from MdcFilter)
+    -->
+
+    <!-- Import Spring Boot defaults for color and level patterns -->
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+
+    <!-- Sensitive data masking converter -->
+    <conversionRule conversionWord="maskedMsg"
+                    converterClass="com.template.starter.logging.masking.SensitiveDataMaskingConverter"/>
+
+    <!-- ========================================
+         DEFAULT: Human-readable console output
+         ======================================== -->
+    <springProfile name="!json-logging">
+        <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+            <encoder>
+                <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %highlight(%-5level) [%t] %cyan(%logger{36}) [traceId=%X{traceId:-} correlationId=%X{correlationId:-} userId=%X{userId:-}] - %maskedMsg(%msg)%n</pattern>
+            </encoder>
+        </appender>
+
+        <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
+        </root>
+    </springProfile>
+
+    <!-- ========================================
+         JSON: Logstash encoder for ELK/Loki
+         Activated via spring.profiles.active=json-logging
+         ======================================== -->
+    <springProfile name="json-logging">
+        <appender name="JSON_CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+            <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+                <!-- All MDC keys are included by default (no whitelist needed) -->
+
+                <!-- Stack trace formatting -->
+                <throwableConverter class="net.logstash.logback.stacktrace.ShortenedThrowableConverter">
+                    <maxDepthPerThrowable>30</maxDepthPerThrowable>
+                    <shortenedClassNameLength>20</shortenedClassNameLength>
+                    <rootCauseFirst>true</rootCauseFirst>
+                </throwableConverter>
+
+                <!-- Custom field for service identification -->
+                <customFields>{"service":"${spring.application.name:-unknown}"}</customFields>
+
+                <!-- JSON provider for masked message -->
+                <jsonGeneratorDecorator class="com.template.starter.logging.masking.MaskingJsonGeneratorDecorator"/>
+            </encoder>
+        </appender>
+
+        <root level="INFO">
+            <appender-ref ref="JSON_CONSOLE"/>
+        </root>
+    </springProfile>
+
+</configuration>

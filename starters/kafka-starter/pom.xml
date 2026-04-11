@@ -49,6 +49,13 @@
 			<groupId>com.acme.enterprise</groupId>
 			<artifactId>common-core</artifactId>
 		</dependency>
+
+		<!-- Test -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 
 </project>

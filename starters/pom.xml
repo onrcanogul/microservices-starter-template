@@ -28,5 +28,6 @@
         <module>scheduler-lock-starter</module>
         <module>webclient-starter</module>
         <module>idempotency-starter</module>
+        <module>logging-starter</module>
     </modules>
 </project>

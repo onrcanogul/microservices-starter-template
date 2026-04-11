@@ -24,6 +24,7 @@
         <resilience4j.version>2.2.0</resilience4j.version>
         <shedlock.version>5.16.0</shedlock.version>
         <springdoc.version>2.8.6</springdoc.version>
+        <logstash-logback.version>8.0</logstash-logback.version>
         <testcontainers.version>1.20.4</testcontainers.version>
         <maven.compiler.release>${java.version}</maven.compiler.release>
     </properties>
@@ -148,6 +149,18 @@
                 <groupId>com.acme.enterprise</groupId>
                 <artifactId>idempotency-starter</artifactId>
                 <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.acme.enterprise</groupId>
+                <artifactId>logging-starter</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <!-- Logstash Logback Encoder -->
+            <dependency>
+                <groupId>net.logstash.logback</groupId>
+                <artifactId>logstash-logback-encoder</artifactId>
+                <version>${logstash-logback.version}</version>
             </dependency>
 
             <!-- ShedLock -->

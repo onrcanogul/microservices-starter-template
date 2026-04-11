@@ -28,6 +28,11 @@ public class EventPublisher {
         if (headers != null) h.putAll(headers);
         TraceContext.traceId().ifPresent(t -> h.putIfAbsent(MessageHeaders.TRACE_ID, t));
 
+        // Propagate MDC context for downstream correlation.
+        // MDC keys "correlationId" and "userId" are set by logging-starter's MdcFilter.
+        propagateMdcIfPresent(h, "correlationId", MessageHeaders.CORRELATION_ID);
+        propagateMdcIfPresent(h, "userId", MessageHeaders.USER_ID);
+
         UUID id = UUID.fromString(h.getOrDefault("id", UUID.randomUUID().toString()));
         String key = h.getOrDefault(MessageHeaders.KEY, id.toString());
 
@@ -37,5 +42,14 @@ public class EventPublisher {
 
     public <T extends Event> void publish(String topic, String type, T payload) {
         publish(topic, type, payload, Map.of());
+    }
+
+    private static void propagateMdcIfPresent(Map<String, String> headers, String mdcKey, String headerKey) {
+        if (!headers.containsKey(headerKey)) {
+            String value = org.slf4j.MDC.get(mdcKey);
+            if (value != null && !value.isBlank()) {
+                headers.put(headerKey, value);
+            }
+        }
     }
 }
