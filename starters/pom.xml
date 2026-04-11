@@ -29,5 +29,6 @@
         <module>webclient-starter</module>
         <module>idempotency-starter</module>
         <module>logging-starter</module>
+        <module>audit-starter</module>
     </modules>
 </project>

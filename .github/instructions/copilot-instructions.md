@@ -177,6 +177,7 @@ com.template.microservices.<service-name>/
 | `acme.resilience.*` | resilience-starter | `ResilienceProperties` |
 | `acme.web.error.*` | common-web | `WebErrorProperties` |
 | `acme.webclient.*` | webclient-starter | `WebClientProperties` |
+| `acme.audit.*` | audit-starter | `AuditProperties` |
 
 ## Key Files Reference
 
@@ -194,6 +195,9 @@ com.template.microservices.<service-name>/
 | JWT auth filter (gateway) | `infra/api-gateway/.../gateway/filter/JwtAuthFilter.java` |
 | JWT auth filter (service) | `starters/security-starter/.../security/filter/JwtAuthenticationFilter.java` |
 | Example service (reference) | `services/example-service/` |
+| Custom revision entity | `starters/audit-starter/.../audit/entity/CustomRevisionEntity.java` |
+| Audit query service | `starters/audit-starter/.../audit/service/AuditQueryService.java` |
+| Audit auto-configuration | `starters/audit-starter/.../audit/AuditAutoConfiguration.java` |
 
 ## Quality Gates
 

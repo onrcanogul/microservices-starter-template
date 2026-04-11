@@ -1,15 +1,20 @@
 package com.template.microservices.example.domain.entity;
 
+import com.template.core.audit.IInsertAuditing;
+import com.template.core.audit.ISoftDelete;
+import com.template.core.audit.IUpdateAuditing;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.envers.Audited;
 
 import java.time.Instant;
 
 @Entity
 @Getter @Setter
 @Table(name = "orders")
-public class Order {
+@Audited
+public class Order implements IInsertAuditing, IUpdateAuditing, ISoftDelete {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -21,15 +26,11 @@ public class Order {
     private Instant createdAt;
     @Column(nullable = false)
     private String createdBy;
-    @Column(nullable = true)
     private Instant updatedAt;
-    @Column(nullable = true)
     private String updatedBy;
-    @Column(nullable = true)
-    private boolean isDeleted;
-    @Column(nullable = true)
+    @Column(name = "is_deleted")
+    private boolean deleted;
     private String deletedBy;
-    @Column(nullable = true)
     private Instant deletedAt;
 
 }

@@ -56,7 +56,10 @@ public class PersistenceAutoConfiguration {
         @Bean
         @ConditionalOnMissingBean
         AuditorAware<String> auditorAware() {
-            return () -> Optional.of("SYSTEM");
+            return () -> {
+                String userId = org.slf4j.MDC.get("userId");
+                return Optional.of(userId != null && !userId.isBlank() ? userId : "SYSTEM");
+            };
         }
     }
 }

@@ -155,6 +155,11 @@
                 <artifactId>logging-starter</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <dependency>
+                <groupId>com.acme.enterprise</groupId>
+                <artifactId>audit-starter</artifactId>
+                <version>${project.version}</version>
+            </dependency>
 
             <!-- Logstash Logback Encoder -->
             <dependency>

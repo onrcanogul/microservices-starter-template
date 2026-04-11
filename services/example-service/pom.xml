@@ -78,6 +78,14 @@
 			<groupId>com.acme.enterprise</groupId>
 			<artifactId>logging-starter</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>com.acme.enterprise</groupId>
+			<artifactId>audit-starter</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.hibernate.orm</groupId>
+			<artifactId>hibernate-envers</artifactId>
+		</dependency>
 
 		<!-- Internal commons -->
 		<dependency>
