@@ -10,6 +10,7 @@ import com.template.starter.idempotency.Idempotent;
 import com.template.starter.saga.orchestration.SagaDefinition;
 import com.template.starter.saga.orchestration.SagaOrchestrator;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -36,6 +37,7 @@ public class OrderController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAuthority('order:read')")
     public ResponseEntity<ApiResponse<List<Order>>> get() {
         return ResponseEntity.ok(ApiResponse.ok(service.get()));
     }
@@ -49,6 +51,7 @@ public class OrderController {
 
     @PostMapping("/saga")
     @Idempotent(ttlSeconds = 3600)
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<UUID>> createOrderViaSaga(@RequestBody OrderCreatedEvent body) {
         CreateOrderSagaContext context = new CreateOrderSagaContext(
                 body.orderId(), body.sku(), body.amount(), false, false);

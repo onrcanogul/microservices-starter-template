@@ -11,8 +11,10 @@ import org.slf4j.LoggerFactory;
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class JwtService {
 
@@ -58,9 +60,17 @@ public class JwtService {
 
         @SuppressWarnings("unchecked")
         List<String> roles = claims.get("roles", List.class);
-        Set<String> roleSet = (roles != null) ? Set.copyOf(roles) : Set.of();
+        Set<String> roleSet = (roles != null)
+                ? roles.stream().filter(Objects::nonNull).collect(Collectors.toUnmodifiableSet())
+                : Set.of();
 
-        return new AuthenticatedUser(userId, email, roleSet);
+        @SuppressWarnings("unchecked")
+        List<String> permissions = claims.get("permissions", List.class);
+        Set<String> permissionSet = (permissions != null)
+                ? permissions.stream().filter(Objects::nonNull).collect(Collectors.toUnmodifiableSet())
+                : Set.of();
+
+        return new AuthenticatedUser(userId, email, roleSet, permissionSet);
     }
 
     private Claims parseClaimsFromToken(String token) {

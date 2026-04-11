@@ -20,6 +20,7 @@ import reactor.core.publisher.Mono;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -73,6 +74,7 @@ public class JwtAuthFilter implements GlobalFilter, Ordered {
                             .header("X-User-Email",
                                     claims.get("email", String.class) != null
                                         ? claims.get("email", String.class) : "")
+                            .header("X-User-Roles", extractRoles(claims))
                             .build())
                     .build();
 
@@ -92,6 +94,12 @@ public class JwtAuthFilter implements GlobalFilter, Ordered {
     }
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
+    @SuppressWarnings("unchecked")
+    private String extractRoles(Claims claims) {
+        List<String> roles = claims.get("roles", List.class);
+        return (roles != null) ? String.join(",", roles) : "";
+    }
 
     private Mono<Void> onError(ServerWebExchange exchange, String err,
                                 HttpStatus status) {

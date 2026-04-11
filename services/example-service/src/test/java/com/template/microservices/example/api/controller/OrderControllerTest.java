@@ -6,10 +6,14 @@ import com.template.microservices.example.application.service.saga.CreateOrderSa
 import com.template.kafka.publisher.EventPublisher;
 import com.template.starter.saga.orchestration.SagaDefinition;
 import com.template.starter.saga.orchestration.SagaOrchestrator;
+import com.template.starter.security.SecurityAutoConfiguration;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -25,6 +29,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(OrderController.class)
+@Import(SecurityAutoConfiguration.class)
+@TestPropertySource(properties = "acme.security.jwt.secret=test-secret-key-that-is-at-least-64-characters-long-for-hmac-sha256-signing")
 class OrderControllerTest {
 
     @Autowired
@@ -43,6 +49,7 @@ class OrderControllerTest {
     private SagaDefinition<CreateOrderSagaContext> createOrderSagaDefinition;
 
     @Test
+    @WithMockUser(authorities = "order:read")
     void get_shouldReturnOrders() throws Exception {
         Order order = new Order();
         order.setId(1L);
@@ -61,6 +68,7 @@ class OrderControllerTest {
     }
 
     @Test
+    @WithMockUser(authorities = "order:read")
     void get_shouldReturnEmptyList() throws Exception {
         when(orderService.get()).thenReturn(List.of());
 
@@ -71,6 +79,7 @@ class OrderControllerTest {
     }
 
     @Test
+    @WithMockUser(roles = "ADMIN")
     void createOrderViaSaga_shouldReturnSagaId() throws Exception {
         UUID sagaId = UUID.randomUUID();
         when(sagaOrchestrator.start(any(), any(CreateOrderSagaContext.class))).thenReturn(sagaId);
@@ -80,5 +89,18 @@ class OrderControllerTest {
                         .content("{\"orderId\":1,\"sku\":\"SKU-001\",\"amount\":5}"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data").value(sagaId.toString()));
+    }
+
+    @Test
+    @WithMockUser(authorities = "other:perm")
+    void get_shouldReturn403_whenMissingPermission() throws Exception {
+        mockMvc.perform(get("/api/order"))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void get_shouldReturn401_whenUnauthenticated() throws Exception {
+        mockMvc.perform(get("/api/order"))
+                .andExpect(status().isUnauthorized());
     }
 }

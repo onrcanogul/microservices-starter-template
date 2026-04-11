@@ -7,7 +7,8 @@ public record SecurityProperties(
     String secret,
     long expirationMs,
     String issuer,
-    String[] publicPaths
+    String[] publicPaths,
+    String[] roleHierarchy
 ) {
     public SecurityProperties {
         if (secret == null || secret.isBlank()) {
