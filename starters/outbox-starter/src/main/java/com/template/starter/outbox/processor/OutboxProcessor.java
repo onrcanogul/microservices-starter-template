@@ -58,6 +58,7 @@ public class OutboxProcessor {
         if (outbox.getCorrelationId() != null) {
             headers.put(MessageHeaders.CORRELATION_ID, outbox.getCorrelationId());
         }
+        headers.put(MessageHeaders.EVENT_VERSION, String.valueOf(outbox.getVersion()));
         return headers;
     }
 }

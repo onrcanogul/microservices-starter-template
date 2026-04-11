@@ -1,6 +1,7 @@
 package com.template.starter.outbox.entity;
 
 
+import com.template.messaging.event.version.EventVersionUtil;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -36,6 +37,9 @@ public class Outbox {
     private String correlationId;
     @Column(name = "IS_PUBLISHED")
     private boolean published = false;
+    @Builder.Default
+    @Column(name = "VERSION")
+    private int version = EventVersionUtil.DEFAULT_VERSION;
     @Column(name = "CREATED_AT")
     private Instant createdAt = Instant.now();
 }

@@ -25,7 +25,7 @@ public class ConfirmOrderStep implements SagaStepHandler<CreateOrderSagaContext>
     public StepOutcome<CreateOrderSagaContext> execute(CreateOrderSagaContext context) {
         log.info("Confirming order: orderId={}", context.orderId());
         orderCreatedProducer.process(
-                new OrderCreatedEvent(context.orderId(), context.sku(), context.amount()));
+                new OrderCreatedEvent(context.orderId(), context.sku(), context.amount(), context.customerEmail()));
         return StepOutcome.success("Order confirmed and event published", context);
     }
 

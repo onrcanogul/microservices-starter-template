@@ -8,14 +8,15 @@ public record CreateOrderSagaContext(
         Long orderId,
         String sku,
         Integer amount,
+        String customerEmail,
         boolean stockReserved,
         boolean paymentCharged
 ) {
     public CreateOrderSagaContext withStockReserved(boolean reserved) {
-        return new CreateOrderSagaContext(orderId, sku, amount, reserved, paymentCharged);
+        return new CreateOrderSagaContext(orderId, sku, amount, customerEmail, reserved, paymentCharged);
     }
 
     public CreateOrderSagaContext withPaymentCharged(boolean charged) {
-        return new CreateOrderSagaContext(orderId, sku, amount, stockReserved, charged);
+        return new CreateOrderSagaContext(orderId, sku, amount, customerEmail, stockReserved, charged);
     }
 }

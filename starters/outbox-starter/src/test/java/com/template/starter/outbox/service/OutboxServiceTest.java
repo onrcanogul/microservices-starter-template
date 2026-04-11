@@ -3,6 +3,7 @@ package com.template.starter.outbox.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.template.messaging.event.base.Event;
+import com.template.messaging.event.version.EventVersion;
 import com.template.starter.outbox.entity.Outbox;
 import com.template.starter.outbox.repository.OutboxRepository;
 import org.junit.jupiter.api.Test;
@@ -33,6 +34,9 @@ class OutboxServiceTest {
 
     record TestEvent(String id) implements Event {}
 
+    @EventVersion(3)
+    record VersionedTestEvent(String id) implements Event {}
+
     @Test
     void save_shouldPersistOutboxEntry() throws JsonProcessingException {
         TestEvent event = new TestEvent("123");
@@ -48,6 +52,20 @@ class OutboxServiceTest {
         assertThat(saved.getPayload()).isEqualTo("{\"id\":\"123\"}");
         assertThat(saved.isPublished()).isFalse();
         assertThat(saved.getAggregateId()).isEqualTo("123");
+        assertThat(saved.getVersion()).isEqualTo(1);
+    }
+
+    @Test
+    void save_shouldStampVersionFromAnnotation() throws JsonProcessingException {
+        VersionedTestEvent event = new VersionedTestEvent("456");
+        when(objectMapper.writeValueAsString(event)).thenReturn("{\"id\":\"456\"}");
+
+        outboxService.save("test.topic", event, String.class, "456");
+
+        ArgumentCaptor<Outbox> captor = ArgumentCaptor.forClass(Outbox.class);
+        verify(outboxRepository).save(captor.capture());
+
+        assertThat(captor.getValue().getVersion()).isEqualTo(3);
     }
 
     @Test

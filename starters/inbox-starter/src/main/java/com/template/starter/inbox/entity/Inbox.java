@@ -1,5 +1,6 @@
 package com.template.starter.inbox.entity;
 
+import com.template.messaging.event.version.EventVersionUtil;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -22,6 +23,9 @@ public class Inbox {
     private String type;
     @Column(name = "IS_PROCESSED")
     private boolean processed = false;
+    @Builder.Default
+    @Column(name = "VERSION")
+    private int version = EventVersionUtil.DEFAULT_VERSION;
     @Column(name = "RECEIVED_AT")
     private Instant receivedAt;
 }

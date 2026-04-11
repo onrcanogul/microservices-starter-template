@@ -54,7 +54,7 @@ public class OrderController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<UUID>> createOrderViaSaga(@RequestBody OrderCreatedEvent body) {
         CreateOrderSagaContext context = new CreateOrderSagaContext(
-                body.orderId(), body.sku(), body.amount(), false, false);
+                body.orderId(), body.sku(), body.amount(), body.customerEmail(), false, false);
         UUID sagaId = sagaOrchestrator.start(createOrderSagaDefinition, context);
         return ResponseEntity.ok(ApiResponse.ok(sagaId));
     }

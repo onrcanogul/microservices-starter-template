@@ -3,6 +3,7 @@ package com.template.starter.outbox.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.template.messaging.event.base.Event;
+import com.template.messaging.event.version.EventVersionUtil;
 import com.template.starter.outbox.entity.Outbox;
 import com.template.starter.outbox.repository.OutboxRepository;
 import org.springframework.stereotype.Service;
@@ -46,6 +47,7 @@ public class OutboxService {
                     .aggregateType(aggregateType.getTypeName())
                     .aggregateId(aggregateId)
                     .correlationId(correlationId)
+                    .version(EventVersionUtil.getVersion(event.getClass()))
                     .payload(objectMapper.writeValueAsString(event))
                     .build());
         } catch (JsonProcessingException e) {
