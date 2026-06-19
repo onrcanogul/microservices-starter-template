@@ -1,0 +1,33 @@
+name: Architecture Fitness CI
+
+on:
+  push:
+    paths:
+      - 'commons/**'
+      - 'starters/**'
+      - 'architecture-tests/**'
+      - 'pom.xml'
+  pull_request:
+    paths:
+      - 'commons/**'
+      - 'starters/**'
+      - 'architecture-tests/**'
+      - 'pom.xml'
+
+jobs:
+  fitness:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+          cache: 'maven'
+
+      - name: Run architecture fitness functions
+        run: |
+          mvn -B test -pl architecture-tests -am

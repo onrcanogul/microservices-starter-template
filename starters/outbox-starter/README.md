@@ -1,46 +1,28 @@
-# Outbox Starter
+# outbox-starter
 
-### Purpose of the Outbox
-The Outbox Starter provides a production-ready implementation of the **Transactional Outbox Pattern**.  
-It ensures **reliable** event publishing in distributed systems by storing events in an **Outbox table** within the same transaction as business data.  
-Later, these events are safely relayed and published to a messaging system (e.g., Kafka).
+Transactional outbox: persists events in the same DB tx, a ShedLock-guarded scheduler publishes them via `EventPublisher`. Config under `outbox.scheduler.*` and `acme.outbox.*`. Feature tier.
 
-This guarantees that no event is lost even if the service crashes after committing the database transaction but before publishing the event.
+## Beans / key types
+| Type | Role |
+|------|------|
+| `OutboxStarterAutoConfiguration` | `@EnableScheduling`; component/JPA/entity scan; gated on `outbox.scheduler.enabled` |
+| `OutboxService` | `save(destination, event, aggregateType, aggregateId[, correlationId])` — serializes + persists `Outbox` |
+| `Outbox` | `@Entity` outbox row (type, destination, payload, published, aggregate, version, correlationId) |
+| `OutboxRepository` | `findTop100ByPublishedFalse()`, `deletePublishedBefore(Instant)` |
+| `OutboxProcessor` | Publishes top-100 unpublished rows via `EventPublisher`, marks `published=true` |
+| `OutboxScheduler` | `run()` at fixed rate + nightly `cleanup()`; `@SchedulerLock` (`outbox_run`, `outbox_cleanup`) |
+| `EventClassResolver` | Maps stored `type` string to `Class<? extends Event>` |
 
----
+## Config
+| Property | Default | Meaning |
+|----------|---------|---------|
+| `outbox.scheduler.enabled` | `true` | Enables the starter |
+| `acme.outbox.scheduler.rate` | `1500` | Publish loop fixed-rate (ms) |
+| `acme.outbox.cleanup.cron` | `0 0 3 * * *` | Cleanup schedule |
+| `acme.outbox.cleanup.retention-days` | `7` | Delete published rows older than N days |
 
-### How It Works
-1. **Domain event is created** during a transaction (e.g., `PaymentCreatedEvent`).
-2. The event is serialized and stored in the `outbox` table with `published=false`.
-3. The `OutboxProcessor` retrieves unpublished events asynchronously.
-4. Events are deserialized back into their Java objects and published via the `EventPublisher`.
-5. If publishing succeeds → the record is marked as `published=true`.
-6. If publishing fails → the failure is logged and retried later.
+## Depends on
+`common-core`, `common-messaging` (`Event`, `MessageHeaders`, `EventVersionUtil`), `persistence-starter` (foundation), `kafka-starter` (`EventPublisher`, foundation), `scheduler-lock-starter` (ShedLock).
 
----
-
-### Outbox Processor
-The core logic is handled by the [`OutboxProcessor`](src/main/java/com/template/starter/outbox/processor/OutboxProcessor.java).
-
-```java
-@Service
-public class OutboxProcessor {
-    @Transactional
-    public void processAsync() {
-        List<Outbox> outboxes = repository.findByPublishedFalse();
-        for (Outbox outbox : outboxes) {
-            try {
-                // Deserialize the payload back into an Event
-                Class<?> raw = Class.forName(outbox.getType());
-                Event eventObj = objectMapper.readValue(outbox.getPayload(), (Class<? extends Event>) raw);
-
-                // Publish the event. If everything is okey, mark published
-                publisher.publish(outbox.getDestination(), outbox.getType(), eventObj, createHeader(outbox))
-                         .thenAccept(sr -> markPublishedNow(outbox.getId()))
-                         .exceptionally(ex -> { logFailure(outbox, ex); return null; });
-            } catch (Exception e) {
-                log.error("Failed to publish outbox event: {}", outbox.getId());
-            }
-        }
-    }
-}
+## See
+`docs/patterns/scheduler-lock.md` · skill `outbox-inbox-pattern`

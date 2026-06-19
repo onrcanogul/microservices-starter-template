@@ -1,40 +1,29 @@
-# Kafka Starter
+# kafka-starter
 
-### Purpose of Kafka
-The **Kafka Starter** provides a ready-to-use configuration for integrating **Apache Kafka** into microservices.  
-It simplifies **producer/consumer setup**, enables **automatic retries with Dead Letter Topics (DLT)**, and integrates with Spring Boot’s observability stack.
+Kafka producer/consumer wiring with JSON (de)serialization, retry + DLT, and an `EventPublisher` that emits `EventWrapper<T>` with trace/correlation headers. Config under `acme.messaging.kafka.*`. FOUNDATION tier.
 
-This starter eliminates boilerplate Kafka configuration, so services only need to focus on **publishing and consuming domain events**.
+## Beans / key types
+| Type | Role |
+|------|------|
+| `KafkaMessagingAutoConfiguration` | Wires producer/consumer factories, retry/DLT, publisher |
+| `KafkaMessagingProperties` | `@ConfigurationProperties("acme.messaging.kafka")` |
+| `ProducerFactory<String,Object>` | String key + `JsonSerializer` value |
+| `KafkaTemplate<String,Object>` | Observation-enabled template |
+| `ConcurrentKafkaListenerContainerFactory<String,EventWrapper<?>>` | Consumer factory; `JsonDeserializer` for `EventWrapper`, retry + DLT |
+| `DefaultErrorHandler` | `FixedBackOff(backoffMs, maxAttempts-1)`; `BusinessException` is non-retryable |
+| `EventPublisher` | `publish(topic, type, payload[, headers])`; wraps in `EventWrapper<T>`, propagates MDC `correlationId`/`userId` + traceId |
+| `Function<String,NewTopic>` (`topicNamer`) | Names topics: 3 partitions, replication 1 |
 
----
+## Config (`acme.messaging.kafka.*`)
+| Property | Default | Meaning |
+|----------|---------|---------|
+| `max-attempts` | `5` | Total attempts incl. first try |
+| `backoff-ms` | `200` | Backoff between retries |
+| `dlt-suffix` | `.DLT` | Dead-letter topic suffix |
+| `trusted-packages` | `com.template` | `JsonDeserializer` trusted packages (comma-separated) |
 
-### How It Works
-1. **ProducerFactory & KafkaTemplate** → configured with `JsonSerializer` for automatic object → JSON conversion.
-2. **ConsumerFactory & Listener Container** → configured with `JsonDeserializer` for type-safe message consumption.
-3. **Error Handling** → built-in retry + Dead Letter Topic (DLT) support using `DefaultErrorHandler` and `DeadLetterPublishingRecoverer`.
-4. **EventPublisher** → wrapper for consistent publishing of domain events with metadata.
+## Depends on
+`common-core` (`BusinessException`, `TraceContext`), `common-messaging` (`Event`, `EventWrapper`, `MessageHeaders`), Spring Kafka.
 
----
-
-### AutoConfiguration
-[`KafkaMessagingAutoConfiguration`](src/main/java/com/template/kafka/KafkaMessagingAutoConfiguration.java) automatically registers core Kafka beans:
-
-```java
-@AutoConfiguration
-@EnableConfigurationProperties(KafkaMessagingProperties.class)
-public class KafkaMessagingAutoConfiguration {
-    @Bean
-    public ProducerFactory<String, Object> producerFactory(KafkaProperties props) { ... }
-
-    @Bean
-    public KafkaTemplate<String, Object> kafkaTemplate(ProducerFactory<String, Object> pf) { ... }
-
-    @Bean(name = "kafkaListenerContainerFactory")
-    public ConcurrentKafkaListenerContainerFactory<String, EventWrapper<?>> kafkaListenerContainerFactory(...) { ... }
-
-    @Bean
-    public Function<String, NewTopic> topicNamer() { ... }
-
-    @Bean
-    public EventPublisher eventPublisher(KafkaTemplate<String, Object> template, Environment env) { ... }
-}
+## See
+skill `kafka-event-flow`

@@ -15,6 +15,7 @@
         <module>infra/api-gateway</module>
         <module>infra/discovery-service</module>
         <module>infra/config-server</module>
+        <module>architecture-tests</module>
     </modules>
 
     <properties>
@@ -26,6 +27,7 @@
         <springdoc.version>2.8.6</springdoc.version>
         <logstash-logback.version>8.0</logstash-logback.version>
         <testcontainers.version>1.20.4</testcontainers.version>
+        <archunit.version>1.3.0</archunit.version>
         <maven.compiler.release>${java.version}</maven.compiler.release>
     </properties>
 
@@ -185,6 +187,13 @@
                 <groupId>org.springdoc</groupId>
                 <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
                 <version>${springdoc.version}</version>
+            </dependency>
+
+            <!-- ArchUnit (architecture fitness functions) -->
+            <dependency>
+                <groupId>com.tngtech.archunit</groupId>
+                <artifactId>archunit</artifactId>
+                <version>${archunit.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

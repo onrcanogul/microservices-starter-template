@@ -1,44 +1,28 @@
-# Inbox Starter
+# inbox-starter
 
-### Purpose
-The **Inbox Starter** provides the foundational building blocks for implementing the **Inbox Pattern** in event-driven microservices.  
-It ensures **idempotent event consumption** by recording processed messages in an `inbox` table.
+Transactional inbox: idempotent persistence of inbound `EventWrapper`s, ShedLock-guarded processing, and version-aware upcasting. Config under `acme.inbox.*`. Feature tier.
 
-Unlike the Outbox (producer-side reliability), the Inbox guarantees **consumer-side reliability**, making sure the same event is **not applied twice**.
+## Beans / key types
+| Type | Role |
+|------|------|
+| `InboxAutoConfiguration` | `@EnableScheduling`; component/JPA/entity scan; gated on `acme.inbox.scheduler.enabled`; provides `EventUpcastChain` |
+| `InboxService` | `save(EventWrapper<? extends Event>)` — dedupes by `idempotentToken`, persists `Inbox` |
+| `Inbox` | `@Entity` inbox row (type, payload, processed, idempotentToken, version) |
+| `InboxRepository` | `findByProcessedFalse()`, `findByIdempotentToken(UUID)`, `deleteProcessedBefore(Instant)` |
+| `InboxProcessor` | Abstract base; `process()` to implement; `getType(payload, eventType[, storedVersion])` deserializes + upcasts |
+| `InboxScheduler` | `process()` at fixed rate + nightly `cleanup()`; `@SchedulerLock` (`inbox_process`, `inbox_cleanup`) |
+| `EventUpcastChain` | Built from `EventUpcaster` beans; transforms old payloads to current schema |
 
----
+## Config (`acme.inbox.*`)
+| Property | Default | Meaning |
+|----------|---------|---------|
+| `scheduler.enabled` | `true` | Enables the starter |
+| `scheduler.rate` | `1500` | Process loop fixed-rate (ms) |
+| `cleanup.cron` | `0 0 3 * * *` | Cleanup schedule |
+| `cleanup.retention-days` | `7` | Delete processed rows older than N days |
 
-### How It Works
-There are **two common approaches** to using the Inbox Pattern:
+## Depends on
+`common-messaging` (`Event`, `EventWrapper`, `MessageHeaders`, `EventUpcaster`/`EventUpcastChain`, `EventVersionUtil`), `persistence-starter` (foundation), `scheduler-lock-starter` (ShedLock).
 
-| Approach | How it works | Pros | Cons                                                                                                |
-|----------|--------------|------|-----------------------------------------------------------------------------------------------------|
-| **Classic Inbox** | Consumer checks the inbox table **immediately** when the event arrives. If already exists → skip, else → save & process. | Low latency, immediate processing | Harder retry handling, consumer must handle errors inline but it can handle with dead letter queues |
-| **Scheduled Inbox (this starter)** | Consumer saves the event into the **inbox table** first (status = pending). A **scheduled job** later reads unprocessed inbox entries and applies business logic. | Easier retries, decouples consumption from processing, handles spikes in traffic | Adds processing latency (e.g., 5–10 seconds)                                                        |
-
-This starter provides the **entity, repository, and save service**.  
-Each service defines its own **InboxProcessor**, typically triggered by a scheduled job.
-
----
-
-### Components Provided by Starter
-The starter ships with:
-
-#### `Inbox` Entity
-Represents a stored event to ensure idempotency.
-
-```java
-@Entity
-@Table(name = "inbox")
-public class Inbox {
-
-    @Id
-    private UUID idempotentToken; // event ID
-
-    private String type;
-    private String payload;
-    private boolean processed;
-    ...
-
-    private Instant receivedAt = Instant.now();
-}
+## See
+`docs/patterns/event-versioning.md` · `docs/patterns/scheduler-lock.md` · skill `outbox-inbox-pattern`
