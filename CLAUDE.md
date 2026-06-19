@@ -70,9 +70,11 @@ by topic:
 
 Module-specific "what it does" documentation stays co-located as each module's `README.md` (see the
 module map above). The reusable, task-oriented knowledge for *doing* work lives as skills under
-[`.github/skills/`](.github/skills/): `service-scaffolding`, `starter-authoring`,
+[`.claude/skills/`](.claude/skills/) (Claude Code discovers these automatically; `.github/skills/`
+holds thin pointers so Copilot stays in sync): `service-scaffolding`, `starter-authoring`,
 `outbox-inbox-pattern`, `kafka-event-flow`, `security-jwt-flow`, `api-gateway-patterns`,
-`error-handling`, `testing-patterns`. Read the relevant skill before doing that kind of work.
+`error-handling`, `testing-patterns`, `architecture-fitness`, `docs-authoring`. Read the relevant
+skill before doing that kind of work.
 
 ## Build & test
 
