@@ -31,8 +31,7 @@ public class Order implements IInsertAuditing, IUpdateAuditing, ISoftDelete {
     // Saga state: PENDING -> CONFIRMED | REJECTED (reservation outcome); CANCELLED on compensation.
     @Column(nullable = false)
     private String status = "PENDING";
-    @CreatedDate
-    @Column(nullable = false, updatable = false)
+    @Column(nullable = false)
     private Instant createdAt;
     @CreatedBy
     @Column(nullable = false, updatable = false)
