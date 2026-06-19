@@ -25,7 +25,7 @@ public class StockController {
     }
 
     @GetMapping("/{sku}")
-    public ResponseEntity<ApiResponse<Stock>> getBySku(@PathVariable String sku) {
+    public ResponseEntity<ApiResponse<Stock>> getBySku(@PathVariable("sku") String sku) {
         return ResponseEntity.ok(ApiResponse.ok(service.getBySku(sku)));
     }
 }
