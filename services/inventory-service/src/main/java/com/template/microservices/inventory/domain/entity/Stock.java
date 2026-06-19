@@ -1,4 +1,4 @@
-package com.template.microservices.example.domain.entity;
+package com.template.microservices.inventory.domain.entity;
 
 import com.template.core.audit.IInsertAuditing;
 import com.template.core.audit.ISoftDelete;
@@ -12,18 +12,18 @@ import java.time.Instant;
 
 @Entity
 @Getter @Setter
-@Table(name = "orders")
+@Table(name = "stock")
 @Audited
-public class Order implements IInsertAuditing, IUpdateAuditing, ISoftDelete {
+public class Stock implements IInsertAuditing, IUpdateAuditing, ISoftDelete {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String sku;
     @Column(nullable = false)
-    private Integer amount;
+    private Integer available;
     @Column(nullable = false)
-    private String status = "PENDING";
+    private Integer reserved;
     @Column(nullable = false)
     private Instant createdAt;
     @Column(nullable = false)
