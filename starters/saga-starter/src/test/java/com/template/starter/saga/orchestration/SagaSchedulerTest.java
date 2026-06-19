@@ -151,4 +151,32 @@ class SagaSchedulerTest {
 
         verify(sagaRepository).deleteByStatusInAndUpdatedAtBefore(any(), any(Instant.class));
     }
+
+    @Test
+    void detectStuckSagas_stuckWaitingForReply_marksCompensatingAndTriggersResume() {
+        SagaInstance stuckSaga = SagaInstance.builder()
+                .id(UUID.randomUUID())
+                .sagaType("AsyncSaga")
+                .status(SagaStatus.WAITING_FOR_REPLY)
+                .awaitCorrelationKey("corr-1")
+                .retryCount(0)
+                .updatedAt(Instant.now())
+                .build();
+
+        when(sagaRepository.findStuckSagas(eq(SagaStatus.RUNNING), any(Instant.class), eq(3)))
+                .thenReturn(List.of());
+        when(sagaRepository.findStuckSagas(eq(SagaStatus.WAITING_FOR_REPLY), any(Instant.class), eq(3)))
+                .thenReturn(List.of(stuckSaga));
+        when(sagaRepository.findStuckSagas(eq(SagaStatus.STARTED), any(Instant.class), eq(3)))
+                .thenReturn(List.of());
+
+        scheduler.detectStuckSagas();
+
+        // WAITING_FOR_REPLY past deadline → compensate (never re-run the suspended step's execute()).
+        ArgumentCaptor<SagaInstance> captor = ArgumentCaptor.forClass(SagaInstance.class);
+        verify(sagaRepository).save(captor.capture());
+        assertThat(captor.getValue().getStatus()).isEqualTo(SagaStatus.COMPENSATING);
+        assertThat(captor.getValue().getRetryCount()).isEqualTo(1);
+        verify(orchestrator).resumeById(stuckSaga.getId());
+    }
 }

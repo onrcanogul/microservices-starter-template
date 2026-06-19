@@ -15,7 +15,7 @@ public interface SagaInstanceRepository extends JpaRepository<SagaInstance, UUID
 
     List<SagaInstance> findByStatus(SagaStatus status);
 
-    /** Find sagas that are stuck — running past their deadline. */
+    /** Find sagas that are stuck — running/waiting past their deadline. */
     @Query("SELECT s FROM SagaInstance s WHERE s.status = :status AND s.deadlineAt < :now AND s.retryCount < :maxRetries")
     List<SagaInstance> findStuckSagas(
             @Param("status") SagaStatus status,
@@ -23,6 +23,9 @@ public interface SagaInstanceRepository extends JpaRepository<SagaInstance, UUID
             @Param("maxRetries") int maxRetries);
 
     List<SagaInstance> findByCorrelationId(UUID correlationId);
+
+    /** Locate the saga parked on a given correlation key (used to resume async steps on reply). */
+    List<SagaInstance> findByStatusAndAwaitCorrelationKey(SagaStatus status, String awaitCorrelationKey);
 
     /** Cleanup completed/failed sagas older than the cutoff. */
     @Modifying

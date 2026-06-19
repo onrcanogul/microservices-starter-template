@@ -6,6 +6,8 @@ package com.template.messaging.saga;
  * State transitions:
  * <pre>
  *   STARTED → RUNNING → COMPLETED
+ *                     → WAITING_FOR_REPLY → RUNNING → ...        (async step: suspend then resume)
+ *                                         → COMPENSATING         (reply failed / timed out)
  *                     → COMPENSATING → FAILED
  *                                    → COMPENSATED
  * </pre>
@@ -13,6 +15,8 @@ package com.template.messaging.saga;
 public enum SagaStatus {
     STARTED,
     RUNNING,
+    /** An async step published its request and the saga is parked awaiting the correlated reply. */
+    WAITING_FOR_REPLY,
     COMPENSATING,
     COMPLETED,
     COMPENSATED,

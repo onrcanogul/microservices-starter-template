@@ -27,7 +27,7 @@ public interface SagaStepHandler<C> {
 
     /**
      * Outcome of a saga step execution.
-     * Carries both the result (success/failure) and optionally an updated context
+     * Carries both the result (success/failure/suspended) and optionally an updated context
      * to pass to subsequent steps.
      *
      * @param <C> saga context type
@@ -48,6 +48,15 @@ public interface SagaStepHandler<C> {
 
         public static <C> StepOutcome<C> failure(String reason, Exception cause) {
             return new StepOutcome<>(StepResult.failure(reason, cause), null);
+        }
+
+        /**
+         * The step published its request and now waits for an async reply correlated by
+         * {@code correlationKey}. The (possibly updated) context is persisted so it is available
+         * to {@link AsyncSagaStepHandler#onReply} when the reply arrives.
+         */
+        public static <C> StepOutcome<C> suspend(String correlationKey, C updatedContext) {
+            return new StepOutcome<>(StepResult.suspended(correlationKey), updatedContext);
         }
     }
 }

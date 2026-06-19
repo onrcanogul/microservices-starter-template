@@ -2,8 +2,8 @@ package com.template.starter.saga.orchestration;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.template.messaging.saga.AsyncSagaStepHandler;
 import com.template.messaging.saga.SagaStatus;
-import com.template.messaging.saga.SagaStepHandler;
 import com.template.messaging.saga.SagaStepHandler.StepOutcome;
 import com.template.messaging.saga.StepResult;
 import com.template.messaging.saga.StepStatus;
@@ -29,6 +29,12 @@ import java.util.concurrent.atomic.AtomicReference;
  * Each step executes in its own transaction, so intermediate state is committed.
  * This enables recovery of stuck sagas via {@link SagaScheduler}.
  * <p>
+ * <b>Async steps:</b> a step may return {@link StepOutcome#suspend(String, Object)} after publishing a
+ * request. The saga is persisted as {@link SagaStatus#WAITING_FOR_REPLY} and the calling thread is
+ * released. When the reply arrives, the service/inbox layer calls
+ * {@link #resumeWithReply(String, Object)} to invoke the step's
+ * {@link AsyncSagaStepHandler#onReply(Object, Object)} and continue the saga.
+ * <p>
  * Usage:
  * <pre>{@code
  * SagaDefinition<OrderContext> definition = SagaDefinition
@@ -42,6 +48,9 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 @Slf4j
 public class SagaOrchestrator {
+
+    /** Outcome of running (or replying to) a single step, used to drive the forward loop. */
+    private enum StepProgress { CONTINUE, FAIL, SUSPEND, NOOP }
 
     private final SagaInstanceRepository sagaRepository;
     private final ObjectMapper objectMapper;
@@ -60,7 +69,7 @@ public class SagaOrchestrator {
     }
 
     /**
-     * Register a saga definition so it can be looked up by type during recovery.
+     * Register a saga definition so it can be looked up by type during recovery and async resume.
      */
     public void register(SagaDefinition<?> definition) {
         definitionRegistry.put(definition.sagaType(), definition);
@@ -70,6 +79,7 @@ public class SagaOrchestrator {
     /**
      * Start a new saga: persist it in its own transaction, then execute steps sequentially.
      * Each step commits independently. If any step fails, compensation runs in reverse order.
+     * If a step suspends (async), this returns once the saga is parked WAITING_FOR_REPLY.
      *
      * @param definition the saga definition
      * @param context    the initial saga context
@@ -151,6 +161,112 @@ public class SagaOrchestrator {
         return resume(sagaId, (SagaDefinition) definition);
     }
 
+    /**
+     * Deliver an asynchronous reply to the saga currently parked on {@code correlationKey}, invoking
+     * the awaiting {@link AsyncSagaStepHandler#onReply}. On success the saga advances to the next step
+     * (running sync steps, suspending again on the next async step, or completing); on failure it
+     * compensates in reverse order.
+     * <p>
+     * <b>Idempotent:</b> if no saga is WAITING_FOR_REPLY on this key (already resumed, timed out, or
+     * unknown), this is a no-op — safe under at-least-once reply delivery.
+     *
+     * @param correlationKey the key the suspended step published with its request
+     * @param reply          the reply payload (converted to the step's {@code replyType()})
+     */
+    public void resumeWithReply(String correlationKey, Object reply) {
+        List<SagaInstance> parked = sagaRepository.findByStatusAndAwaitCorrelationKey(
+                SagaStatus.WAITING_FOR_REPLY, correlationKey);
+        if (parked.isEmpty()) {
+            log.debug("No saga WAITING_FOR_REPLY for correlationKey={} — ignoring reply (idempotent)", correlationKey);
+            return;
+        }
+
+        SagaInstance saga = parked.get(0);
+        SagaDefinition<?> definition = definitionRegistry.get(saga.getSagaType());
+        if (definition == null) {
+            throw new IllegalStateException("No definition registered for saga type: " + saga.getSagaType());
+        }
+
+        doResumeWithReply(saga.getId(), definition, reply);
+    }
+
+    @SuppressWarnings("unchecked")
+    private <C> void doResumeWithReply(UUID sagaId, SagaDefinition<C> definition, Object reply) {
+        SagaInstance saga = sagaRepository.findById(sagaId).orElseThrow();
+        int awaitingStepIndex = saga.getCurrentStep();
+        SagaDefinition.StepDefinition<C> stepDef = definition.steps().get(awaitingStepIndex);
+
+        if (!(stepDef.handler() instanceof AsyncSagaStepHandler)) {
+            throw new IllegalStateException("Step '" + stepDef.name() +
+                    "' received a reply but is not an AsyncSagaStepHandler");
+        }
+        AsyncSagaStepHandler<C, Object> asyncHandler = (AsyncSagaStepHandler<C, Object>) stepDef.handler();
+
+        C context = deserializeContext(saga.getPayload(), definition.contextType());
+        AtomicReference<C> contextRef = new AtomicReference<>(context);
+
+        StepProgress progress = txTemplate.execute(status -> {
+            SagaInstance s = sagaRepository.findById(sagaId).orElseThrow();
+            // Idempotency under concurrency: a concurrent reply or a timeout may have moved the saga on.
+            if (s.getStatus() != SagaStatus.WAITING_FOR_REPLY) {
+                return StepProgress.NOOP;
+            }
+            SagaStepExecution stepExec = getOrCreateStepExecution(s, stepDef, awaitingStepIndex);
+
+            StepOutcome<C> outcome;
+            try {
+                Object typedReply = objectMapper.convertValue(reply, asyncHandler.replyType());
+                outcome = asyncHandler.onReply(context, typedReply);
+            } catch (Exception e) {
+                outcome = StepOutcome.failure("onReply exception: " + e.getMessage(), e);
+            }
+
+            return switch (outcome.result()) {
+                case StepResult.Success success -> {
+                    stepExec.setStatus(StepStatus.SUCCEEDED);
+                    stepExec.setOutput(success.output());
+                    stepExec.setExecutedAt(Instant.now());
+                    s.setCurrentStep(awaitingStepIndex + 1);
+                    s.setStatus(SagaStatus.RUNNING);
+                    s.setAwaitCorrelationKey(null);
+                    s.setAwaitStepName(null);
+                    C updatedCtx = outcome.updatedContext() != null ? outcome.updatedContext() : context;
+                    contextRef.set(updatedCtx);
+                    s.setPayload(serializeContext(updatedCtx));
+                    s.setUpdatedAt(Instant.now());
+                    sagaRepository.save(s);
+                    yield StepProgress.CONTINUE;
+                }
+                case StepResult.Failure failure -> {
+                    stepExec.setStatus(StepStatus.FAILED);
+                    stepExec.setFailureReason(failure.reason());
+                    stepExec.setExecutedAt(Instant.now());
+                    s.setAwaitCorrelationKey(null);
+                    s.setAwaitStepName(null);
+                    s.setUpdatedAt(Instant.now());
+                    sagaRepository.save(s);
+                    yield StepProgress.FAIL;
+                }
+                // Single-level await: onReply must produce a terminal outcome, never suspend again.
+                case StepResult.Suspended suspended ->
+                        throw new IllegalStateException("AsyncSagaStepHandler.onReply must not return Suspended");
+            };
+        });
+
+        switch (progress) {
+            case NOOP -> log.debug("Saga [{}] no longer WAITING_FOR_REPLY — reply ignored (idempotent)", sagaId);
+            case FAIL -> {
+                log.warn("Saga [{}] async step '{}' failed on reply. Starting compensation.", sagaId, stepDef.name());
+                compensate(sagaId, definition, contextRef.get());
+            }
+            case CONTINUE -> {
+                log.info("Saga [{}] resumed from reply at step '{}'", sagaId, stepDef.name());
+                execute(sagaId, definition, contextRef.get());
+            }
+            case SUSPEND -> { /* unreachable: onReply cannot suspend */ }
+        }
+    }
+
     private <C> UUID execute(UUID sagaId, SagaDefinition<C> definition, C initialContext) {
         List<SagaDefinition.StepDefinition<C>> steps = definition.steps();
         AtomicReference<C> contextRef = new AtomicReference<>(initialContext);
@@ -166,7 +282,7 @@ public class SagaOrchestrator {
             log.debug("Saga [{}] executing step {}/{}: {}",
                     sagaId, i + 1, steps.size(), stepDef.name());
 
-            Boolean succeeded = txTemplate.execute(status -> {
+            StepProgress progress = txTemplate.execute(status -> {
                 SagaInstance s = sagaRepository.findById(sagaId).orElseThrow();
                 SagaStepExecution stepExec = getOrCreateStepExecution(s, stepDef, stepIndex);
 
@@ -188,7 +304,22 @@ public class SagaOrchestrator {
                         s.setPayload(serializeContext(updatedCtx));
                         s.setUpdatedAt(Instant.now());
                         sagaRepository.save(s);
-                        yield true;
+                        yield StepProgress.CONTINUE;
+                    }
+                    case StepResult.Suspended suspended -> {
+                        // Async step published its request; park the saga and release the thread.
+                        stepExec.setStatus(StepStatus.AWAITING);
+                        stepExec.setExecutedAt(Instant.now());
+                        s.setStatus(SagaStatus.WAITING_FOR_REPLY);
+                        s.setAwaitCorrelationKey(suspended.correlationKey());
+                        s.setAwaitStepName(stepDef.name());
+                        // currentStep stays on this step so the reply resumes the right handler.
+                        C updatedCtx = outcome.updatedContext() != null ? outcome.updatedContext() : currentContext;
+                        contextRef.set(updatedCtx);
+                        s.setPayload(serializeContext(updatedCtx));
+                        s.setUpdatedAt(Instant.now());
+                        sagaRepository.save(s);
+                        yield StepProgress.SUSPEND;
                     }
                     case StepResult.Failure failure -> {
                         stepExec.setStatus(StepStatus.FAILED);
@@ -196,14 +327,18 @@ public class SagaOrchestrator {
                         stepExec.setExecutedAt(Instant.now());
                         s.setUpdatedAt(Instant.now());
                         sagaRepository.save(s);
-                        yield false;
+                        yield StepProgress.FAIL;
                     }
                 };
             });
 
-            if (!Boolean.TRUE.equals(succeeded)) {
-                log.warn("Saga [{}] step '{}' failed. Starting compensation.",
+            if (progress == StepProgress.SUSPEND) {
+                log.info("Saga [{}] step '{}' suspended — awaiting reply, releasing thread",
                         sagaId, stepDef.name());
+                return sagaId;
+            }
+            if (progress == StepProgress.FAIL) {
+                log.warn("Saga [{}] step '{}' failed. Starting compensation.", sagaId, stepDef.name());
                 compensate(sagaId, definition, contextRef.get());
                 return sagaId;
             }
@@ -277,6 +412,12 @@ public class SagaOrchestrator {
                 case StepResult.Failure failure -> {
                     log.error("Saga [{}] compensation FAILED for step '{}': {}",
                             sagaId, stepDef.name(), failure.reason());
+                    compensationFailed = true;
+                }
+                case StepResult.Suspended ignored -> {
+                    // Compensation cannot suspend; treat as a failed compensation.
+                    log.error("Saga [{}] compensation for step '{}' returned Suspended — not allowed; marking failed",
+                            sagaId, stepDef.name());
                     compensationFailed = true;
                 }
             }

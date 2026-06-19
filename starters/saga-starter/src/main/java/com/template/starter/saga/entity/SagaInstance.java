@@ -12,7 +12,8 @@ import java.util.UUID;
 @Entity
 @Table(name = "saga_instance", indexes = {
         @Index(name = "IX_SAGA_STATUS", columnList = "STATUS"),
-        @Index(name = "IX_SAGA_CORRELATION", columnList = "CORRELATION_ID")
+        @Index(name = "IX_SAGA_CORRELATION", columnList = "CORRELATION_ID"),
+        @Index(name = "IX_SAGA_AWAIT_KEY", columnList = "AWAIT_CORRELATION_KEY")
 })
 @Getter @Setter
 @Builder @NoArgsConstructor @AllArgsConstructor
@@ -47,6 +48,17 @@ public class SagaInstance {
     /** Number of recovery attempts for stuck sagas. */
     @Column(name = "RETRY_COUNT")
     private int retryCount;
+
+    /**
+     * When the saga is {@code WAITING_FOR_REPLY}, the correlation key the awaited reply will carry.
+     * Null otherwise. Indexed so replies can locate the parked saga.
+     */
+    @Column(name = "AWAIT_CORRELATION_KEY")
+    private String awaitCorrelationKey;
+
+    /** When the saga is {@code WAITING_FOR_REPLY}, the name of the suspended (async) step. Null otherwise. */
+    @Column(name = "AWAIT_STEP")
+    private String awaitStepName;
 
     @Column(name = "CREATED_AT", nullable = false)
     private Instant createdAt;

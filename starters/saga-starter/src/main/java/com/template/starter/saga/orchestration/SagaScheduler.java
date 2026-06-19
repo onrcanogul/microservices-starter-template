@@ -10,12 +10,13 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Periodic scheduler that detects stuck sagas (running past their deadline),
- * triggers compensation via {@link SagaOrchestrator#resumeById}, and cleans up
- * old completed/failed sagas based on retention policy.
+ * Periodic scheduler that detects stuck sagas (running or awaiting a reply past their deadline),
+ * triggers compensation via {@link SagaOrchestrator#resumeById}, and cleans up old
+ * completed/failed sagas based on retention policy.
  */
 @Slf4j
 public class SagaScheduler {
@@ -33,9 +34,13 @@ public class SagaScheduler {
     }
 
     /**
-     * Detect stuck sagas — those in RUNNING/STARTED state past their deadline.
-     * RUNNING sagas are marked COMPENSATING and compensation is triggered.
-     * STARTED sagas that failed before any step ran are marked FAILED.
+     * Detect stuck sagas — those past their deadline.
+     * <ul>
+     *   <li>RUNNING and WAITING_FOR_REPLY → marked COMPENSATING; compensation is triggered.
+     *       For WAITING_FOR_REPLY this only compensates — the suspended async step's {@code execute()}
+     *       is never re-run, so the request is not re-published.</li>
+     *   <li>STARTED (failed before any step ran) → marked FAILED.</li>
+     * </ul>
      */
     @Scheduled(fixedDelayString = "#{@sagaProperties.schedulerRate.toMillis()}")
     @SchedulerLock(name = "saga_detectStuckSagas", lockAtMostFor = "PT10M", lockAtLeastFor = "PT5S")
@@ -44,12 +49,20 @@ public class SagaScheduler {
         Instant now = Instant.now();
         List<SagaInstance> stuckRunning = sagaRepository.findStuckSagas(
                 SagaStatus.RUNNING, now, properties.getMaxRetries());
+        List<SagaInstance> stuckWaiting = sagaRepository.findStuckSagas(
+                SagaStatus.WAITING_FOR_REPLY, now, properties.getMaxRetries());
         List<SagaInstance> stuckStarted = sagaRepository.findStuckSagas(
                 SagaStatus.STARTED, now, properties.getMaxRetries());
 
-        for (SagaInstance saga : stuckRunning) {
-            log.warn("Saga [{}] type='{}' stuck in RUNNING — marking for compensation (retry {}/{})",
-                    saga.getId(), saga.getSagaType(), saga.getRetryCount() + 1, properties.getMaxRetries());
+        // RUNNING / WAITING_FOR_REPLY → compensate. They keep partial progress that must be undone.
+        List<SagaInstance> toCompensate = new ArrayList<>();
+        toCompensate.addAll(stuckRunning);
+        toCompensate.addAll(stuckWaiting);
+
+        for (SagaInstance saga : toCompensate) {
+            log.warn("Saga [{}] type='{}' stuck in {} — marking for compensation (retry {}/{})",
+                    saga.getId(), saga.getSagaType(), saga.getStatus(),
+                    saga.getRetryCount() + 1, properties.getMaxRetries());
             saga.setStatus(SagaStatus.COMPENSATING);
             saga.setRetryCount(saga.getRetryCount() + 1);
             saga.setUpdatedAt(Instant.now());
@@ -65,8 +78,9 @@ public class SagaScheduler {
             sagaRepository.save(saga);
         }
 
-        // Trigger compensation for sagas that were just marked COMPENSATING
-        for (SagaInstance saga : stuckRunning) {
+        // Trigger compensation. resumeById -> resume() sees COMPENSATING -> compensate() only;
+        // it never re-runs a suspended step's execute().
+        for (SagaInstance saga : toCompensate) {
             try {
                 orchestrator.resumeById(saga.getId());
             } catch (Exception e) {
