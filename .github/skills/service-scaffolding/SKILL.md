@@ -103,7 +103,7 @@ In `infra/api-gateway/src/main/resources/application.yml`, add under `spring.clo
   predicates:
     - Path=/<short-name>/**         # public path alias (e.g., /example, /orders)
   filters:
-    - RewritePath=/<short-name>/(?<segment>.*), /api/<resource-prefix>/${segment}
+    - RewritePath=/<short-name>/(?<segment>.*), /api/${segment}
     - name: RequestRateLimiter
       args:
         redis-rate-limiter.replenishRate: ${RATE_LIMIT_RPS:10}
@@ -112,7 +112,7 @@ In `infra/api-gateway/src/main/resources/application.yml`, add under `spring.clo
         key-resolver: "#{@ipKeyResolver}"
 ```
 
-The `Path` predicate uses a **short alias** (not the full service name). The `RewritePath` target includes the resource prefix so the downstream service receives the full API path (e.g., `/example/order/1` → `/api/example/order/1`).
+The `Path` predicate uses a **short alias** (not the full service name) for routing; the `RewritePath` filter then strips that alias to the service's own `/api/**` namespace (e.g., `/example/order/1` → `/api/order/1`). Each service owns `/api/<resource>` per the REST convention; the alias only disambiguates routing at the gateway.
 
 ### 6. Create Flyway migrations
 

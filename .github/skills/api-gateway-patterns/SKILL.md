@@ -85,7 +85,7 @@ spring:
           predicates:
             - Path=/example/**                   # incoming path pattern
           filters:
-            - RewritePath=/example/(?<segment>.*), /api/example/${segment}
+            - RewritePath=/example/(?<segment>.*), /api/${segment}
             - name: RequestRateLimiter
               args:
                 redis-rate-limiter.replenishRate: ${RATE_LIMIT_RPS:10}
