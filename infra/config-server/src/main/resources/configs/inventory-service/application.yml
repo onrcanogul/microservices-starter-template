@@ -1,0 +1,21 @@
+# Shared configuration for inventory-service pulled from Config Server
+# Override per-environment by adding inventory-service-{profile}.yml
+
+acme:
+  messaging:
+    kafka:
+      max-attempts: 5
+      backoff-ms: 200
+      dlt-suffix: ".DLT"
+      topic-prefix: ""
+  logging:
+    enabled: true
+    mdc:
+      enabled: true
+      user-id-header: X-User-Id
+      user-email-header: X-User-Email
+      correlation-id-header: X-Correlation-Id
+
+logging:
+  pattern:
+    level: "%5p [trace=%X{traceId:-} span=%X{spanId:-} correlationId=%X{correlationId:-} userId=%X{userId:-}]"

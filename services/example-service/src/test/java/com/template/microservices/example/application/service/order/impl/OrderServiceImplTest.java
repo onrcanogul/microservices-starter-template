@@ -2,6 +2,8 @@ package com.template.microservices.example.application.service.order.impl;
 
 import com.template.core.exception.BusinessException;
 import com.template.microservices.example.domain.entity.Order;
+import com.template.microservices.example.infrastructure.messaging.processor.StockReleaseRequestedProducer;
+import com.template.microservices.example.infrastructure.messaging.processor.StockReservationRequestedProducer;
 import com.template.microservices.example.infrastructure.repository.OrderRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -24,6 +26,12 @@ class OrderServiceImplTest {
 
     @Mock
     private OrderRepository repository;
+
+    @Mock
+    private StockReservationRequestedProducer stockReservationRequestedProducer;
+
+    @Mock
+    private StockReleaseRequestedProducer stockReleaseRequestedProducer;
 
     @InjectMocks
     private OrderServiceImpl orderService;
@@ -106,5 +114,51 @@ class OrderServiceImplTest {
 
         assertThatThrownBy(() -> orderService.delete(99L))
                 .isInstanceOf(BusinessException.class);
+    }
+
+    @Test
+    void createOrder_shouldPersistPendingOrderAndRequestStockReservation() {
+        when(repository.save(any(Order.class))).thenAnswer(invocation -> {
+            Order o = invocation.getArgument(0);
+            o.setId(1L);
+            return o;
+        });
+
+        Order result = orderService.createOrder("SKU-001", 5);
+
+        assertThat(result.getStatus()).isEqualTo("PENDING");
+        verify(repository).save(any(Order.class));
+        verify(stockReservationRequestedProducer).process(any());
+    }
+
+    @Test
+    void cancel_shouldMarkCancelledAndRequestStockRelease() {
+        when(repository.findById(1L)).thenReturn(Optional.of(sampleOrder));
+
+        orderService.cancel(1L);
+
+        assertThat(sampleOrder.getStatus()).isEqualTo("CANCELLED");
+        verify(repository).save(sampleOrder);
+        verify(stockReleaseRequestedProducer).process(any());
+    }
+
+    @Test
+    void markConfirmed_shouldSetStatusConfirmed() {
+        when(repository.findById(1L)).thenReturn(Optional.of(sampleOrder));
+
+        orderService.markConfirmed(1L);
+
+        assertThat(sampleOrder.getStatus()).isEqualTo("CONFIRMED");
+        verify(repository).save(sampleOrder);
+    }
+
+    @Test
+    void markRejected_shouldSetStatusRejected() {
+        when(repository.findById(1L)).thenReturn(Optional.of(sampleOrder));
+
+        orderService.markRejected(1L);
+
+        assertThat(sampleOrder.getStatus()).isEqualTo("REJECTED");
+        verify(repository).save(sampleOrder);
     }
 }

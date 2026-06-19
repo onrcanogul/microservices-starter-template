@@ -49,6 +49,7 @@ Each module documents itself in its own README. Start there before changing a mo
 
 **services** — business microservices.
 - [`example-service`](services/example-service/README.md) — reference implementation wiring every pattern.
+- [`inventory-service`](services/inventory-service/README.md) — choreographed stock-reservation saga with example-service (cross-service, event-driven).
 
 **infra** — platform services.
 - [`api-gateway`](infra/api-gateway/README.md) (:8000) · [`discovery-service`](infra/discovery-service/README.md) (:8761) · [`config-server`](infra/config-server/README.md) (:8888)
@@ -63,7 +64,7 @@ by topic:
 - [`docs/architecture/overview.md`](docs/architecture/overview.md) — runtime topology, request path, event path (outbox→inbox), dependency direction.
 - [`docs/concepts/distributed-systems.md`](docs/concepts/distributed-systems.md) — delivery/consistency, CAP/PACELC, coordination, observability mapped to where each appears here.
 - [`docs/constraints/`](docs/constraints/) — the enforced architectural invariants ([`layering.md`](docs/constraints/layering.md)).
-- [`docs/patterns/`](docs/patterns/) — design-decision deep-dives: [`saga`](docs/patterns/saga.md) · [`scheduler-lock`](docs/patterns/scheduler-lock.md) · [`audit-trail`](docs/patterns/audit-trail.md) · [`event-versioning`](docs/patterns/event-versioning.md) · [`structured-logging`](docs/patterns/structured-logging.md) · [`outbox-inbox`](docs/patterns/outbox-inbox.md) · [`jwt-two-layer`](docs/patterns/jwt-two-layer.md) · [`error-handling`](docs/patterns/error-handling.md).
+- [`docs/patterns/`](docs/patterns/) — design-decision deep-dives: [`saga`](docs/patterns/saga.md) · [`scheduler-lock`](docs/patterns/scheduler-lock.md) · [`audit-trail`](docs/patterns/audit-trail.md) · [`choreographed-stock-reservation`](docs/patterns/choreographed-stock-reservation.md) · [`event-versioning`](docs/patterns/event-versioning.md) · [`structured-logging`](docs/patterns/structured-logging.md) · [`outbox-inbox`](docs/patterns/outbox-inbox.md) · [`jwt-two-layer`](docs/patterns/jwt-two-layer.md) · [`error-handling`](docs/patterns/error-handling.md).
 - [`docs/operations/running-locally.md`](docs/operations/running-locally.md) — prerequisites, infra, startup order, smoke test, tests, troubleshooting.
 - [`docs/conventions.md`](docs/conventions.md) — coding conventions (the single source; see golden rules above).
 - [`docs/glossary.md`](docs/glossary.md) — definitions of the core concepts (Event, EventWrapper, ApiResponse, outbox/inbox, saga, upcaster, foundation vs feature starter).
