@@ -15,6 +15,7 @@ Reference microservice wiring every pattern/starter around a small `Order` domai
 | event versioning | `messaging/OrderCreatedEvent` `@EventVersion(2)`; `messaging/upcaster/OrderCreatedV1ToV2Upcaster` (v1→v2 adds `customerEmail`) |
 | Kafka topics + DLT | `infrastructure/configuration/TopicConfig` (`orders.created` + `.DLT`) |
 | audit + soft delete | `domain/entity/Order` `@Audited` + `ISoftDelete`; `OrderServiceImpl.delete` |
+| stock-reservation saga (choreography) | `messaging/processor/{StockReservationRequested,StockReleaseRequested}Producer`; `consumer/Stock{Reserved,ReservationFailed,Released}Consumer`; `ExampleInboxProcessor` branches; `Order.status` PENDING→CONFIRMED/REJECTED/CANCELLED — see [docs/patterns/choreographed-stock-reservation.md](../../docs/patterns/choreographed-stock-reservation.md) |
 
 ## Package structure
 ```
@@ -42,3 +43,4 @@ Flyway `db/migration`, `ddl-auto: none`.
 - V5 `create_saga_tables` — `saga_instance`, `saga_step_execution`
 - V6 `add_event_version_columns` — `version` on outbox/inbox
 - V7 `create_audit_tables` — Envers `revinfo`, `orders_aud`
+- V8 `add_order_status` — `status` on `orders` (saga state)

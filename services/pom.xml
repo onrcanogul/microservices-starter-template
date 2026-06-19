@@ -16,5 +16,6 @@
 
     <modules>
         <module>example-service</module>
+        <module>inventory-service</module>
     </modules>
 </project>

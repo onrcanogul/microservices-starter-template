@@ -58,4 +58,14 @@ public class OrderController {
         UUID sagaId = sagaOrchestrator.start(createOrderSagaDefinition, context);
         return ResponseEntity.ok(ApiResponse.ok(sagaId));
     }
+
+    /**
+     * Compensation entry point for the choreographed stock-reservation saga: marks the order
+     * CANCELLED and publishes a stock-release request (via the outbox, in one transaction).
+     */
+    @PostMapping("/{id}/cancel")
+    public ResponseEntity<ApiResponse<Void>> cancel(@PathVariable("id") Long id) {
+        service.cancel(id);
+        return ResponseEntity.ok(ApiResponse.<Void>ok(null));
+    }
 }
