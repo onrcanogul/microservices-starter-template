@@ -8,7 +8,7 @@ Reference microservice wiring every pattern/starter around a small `Order` domai
 | API envelope | `ApiResponse` in `api/controller/OrderController` |
 | idempotency | `@Idempotent` on `POST /api/order`, `POST /api/order/saga` |
 | method security | `@PreAuthorize` on `OrderController` |
-| saga orchestration | `infrastructure/configuration/SagaConfig` → `ReserveStockStep` → `ChargePaymentStep` → `ConfirmOrderStep`; context `application/service/saga/CreateOrderSagaContext` |
+| saga orchestration (async) | `SagaConfig` → `ReserveStockStep` (**async** `AsyncSagaStepHandler` — publishes `stock.reservation.requested`, SUSPENDS until inventory replies) → `ChargePaymentStep` → `ConfirmOrderStep`; `POST /api/order/saga` returns a sagaId and completes on reply via `SagaOrchestrator.resumeWithReply` |
 | compensation | `compensate(...)` per step; `@SagaRollback` on `consumer/PaymentFailedConsumer` |
 | outbox | `messaging/processor/OrderCreatedProducer` → `OutboxService` |
 | inbox | `consumer/OrderConsumer`, `PaymentFailedConsumer` → `InboxService`; drained by `application/service/inbox/ExampleInboxProcessor` |
@@ -16,6 +16,7 @@ Reference microservice wiring every pattern/starter around a small `Order` domai
 | Kafka topics + DLT | `infrastructure/configuration/TopicConfig` (`orders.created` + `.DLT`) |
 | audit + soft delete | `domain/entity/Order` `@Audited` + `ISoftDelete`; `OrderServiceImpl.delete` |
 | stock-reservation saga (choreography) | `messaging/processor/{StockReservationRequested,StockReleaseRequested}Producer`; `consumer/Stock{Reserved,ReservationFailed,Released}Consumer`; `ExampleInboxProcessor` branches; `Order.status` PENDING→CONFIRMED/REJECTED/CANCELLED — see [docs/patterns/choreographed-stock-reservation.md](../../docs/patterns/choreographed-stock-reservation.md) |
+| reply routing | `ExampleInboxProcessor` routes a `StockReserved`/`StockReservationFailed` reply to `resumeWithReply` when a saga is parked on the orderId, else to choreography status update — same events, two flows, no double-processing |
 
 ## Package structure
 ```
@@ -44,3 +45,4 @@ Flyway `db/migration`, `ddl-auto: none`.
 - V6 `add_event_version_columns` — `version` on outbox/inbox
 - V7 `create_audit_tables` — Envers `revinfo`, `orders_aud`
 - V8 `add_order_status` — `status` on `orders` (saga state)
+- V9 `add_saga_await_columns` — `await_correlation_key` / `await_step` on `saga_instance` (async saga suspend/resume)

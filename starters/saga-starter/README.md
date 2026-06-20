@@ -38,6 +38,8 @@ Lifecycle: `execute()` returns `suspend(correlationKey, ctx)` → saga persists 
 
 Rules: the engine stays Kafka-unaware (the step body publishes; you wire reply→`resumeWithReply`). **Single-level await** — `onReply` must return Success/Failure, never `suspend`. On timeout the scheduler compensates a `WAITING_FOR_REPLY` saga without re-running `execute()` (no duplicate request).
 
+Reference wiring: example-service's `ReserveStockStep` + `ExampleInboxProcessor` (a `StockReserved`/`StockReservationFailed` reply is routed to `resumeWithReply` when a saga is parked on the orderId, else to the Phase 1 choreography path).
+
 ## Config (`acme.saga.*`)
 | Property | Default | Meaning |
 |----------|---------|---------|

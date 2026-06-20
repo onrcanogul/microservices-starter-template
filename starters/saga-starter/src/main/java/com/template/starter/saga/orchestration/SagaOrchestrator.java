@@ -215,7 +215,11 @@ public class SagaOrchestrator {
 
             StepOutcome<C> outcome;
             try {
-                Object typedReply = objectMapper.convertValue(reply, asyncHandler.replyType());
+                // The reply may already be a concrete instance (e.g. an event passed straight from the
+                // inbox) — only convert when it is some other shape. This also supports a sealed-interface
+                // replyType(), which Jackson cannot instantiate directly.
+                Class<?> replyType = asyncHandler.replyType();
+                Object typedReply = replyType.isInstance(reply) ? reply : objectMapper.convertValue(reply, replyType);
                 outcome = asyncHandler.onReply(context, typedReply);
             } catch (Exception e) {
                 outcome = StepOutcome.failure("onReply exception: " + e.getMessage(), e);
