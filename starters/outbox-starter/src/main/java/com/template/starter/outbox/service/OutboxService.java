@@ -6,13 +6,18 @@ import com.template.messaging.event.base.Event;
 import com.template.messaging.event.version.EventVersionUtil;
 import com.template.starter.outbox.entity.Outbox;
 import com.template.starter.outbox.repository.OutboxRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.UncheckedIOException;
 import java.time.Instant;
+import java.util.UUID;
 
 @Service
 public class OutboxService {
+    private static final Logger log = LoggerFactory.getLogger(OutboxService.class);
     private final OutboxRepository outboxRepository;
     private final ObjectMapper objectMapper;
 
@@ -53,5 +58,22 @@ public class OutboxService {
         } catch (JsonProcessingException e) {
             throw new UncheckedIOException("Failed to serialize outbox event: " + event.getClass().getSimpleName(), e);
         }
+    }
+
+    /**
+     * Replay a dead-lettered (or any) outbox row: clear the dead flag, reset attempts and backoff so
+     * the publisher re-attempts it on the next cycle.
+     */
+    @Transactional
+    public void replay(UUID id) {
+        outboxRepository.findById(id).ifPresent(outbox -> {
+            outbox.setDead(false);
+            outbox.setPublished(false);
+            outbox.setAttempts(0);
+            outbox.setNextAttemptAt(null);
+            outbox.setLastError(null);
+            outboxRepository.save(outbox);
+            log.info("Outbox event {} reset for replay", id);
+        });
     }
 }

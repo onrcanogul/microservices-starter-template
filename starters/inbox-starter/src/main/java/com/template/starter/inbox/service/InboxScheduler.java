@@ -1,10 +1,10 @@
 package com.template.starter.inbox.service;
 
+import com.template.starter.inbox.property.InboxProperties;
 import com.template.starter.inbox.repository.InboxRepository;
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,10 +21,10 @@ public class InboxScheduler {
 
     public InboxScheduler(InboxProcessor processor,
                           InboxRepository repository,
-                          @Value("${acme.inbox.cleanup.retention-days:7}") int retentionDays) {
+                          InboxProperties properties) {
         this.processor = processor;
         this.repository = repository;
-        this.retentionPeriod = Duration.ofDays(retentionDays);
+        this.retentionPeriod = Duration.ofDays(properties.getCleanup().getRetentionDays());
     }
 
     @Scheduled(fixedRateString = "${acme.inbox.scheduler.rate:1500}")

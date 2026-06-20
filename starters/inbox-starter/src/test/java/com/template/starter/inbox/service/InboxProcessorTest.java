@@ -2,6 +2,7 @@ package com.template.starter.inbox.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.template.messaging.event.base.Event;
+import com.template.starter.inbox.entity.Inbox;
 import com.template.messaging.event.version.EventUpcastChain;
 import com.template.messaging.event.version.EventVersion;
 import com.template.messaging.event.version.EventUpcaster;
@@ -10,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 class InboxProcessorTest {
 
@@ -67,8 +69,8 @@ class InboxProcessorTest {
     @Test
     void getType_backwardCompatibleConstructor_worksWithoutUpcastChain() {
         // Use the backward-compatible constructor (no upcast chain)
-        InboxProcessor processor = new InboxProcessor(objectMapper) {
-            @Override public void process() {}
+        InboxProcessor processor = new InboxProcessor(objectMapper, mock(InboxProcessingSupport.class)) {
+            @Override protected void handle(Inbox inbox) {}
         };
 
         String payload = "{\"name\":\"Dana\",\"email\":\"dana@test.com\"}";
@@ -78,9 +80,9 @@ class InboxProcessorTest {
     }
 
     private InboxProcessor createProcessor(EventUpcastChain chain) {
-        return new InboxProcessor(objectMapper, chain) {
+        return new InboxProcessor(objectMapper, chain, mock(InboxProcessingSupport.class)) {
             @Override
-            public void process() {}
+            protected void handle(Inbox inbox) {}
         };
     }
 }

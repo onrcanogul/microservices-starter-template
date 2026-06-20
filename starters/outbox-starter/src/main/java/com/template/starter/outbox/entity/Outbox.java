@@ -1,6 +1,5 @@
 package com.template.starter.outbox.entity;
 
-
 import com.template.messaging.event.version.EventVersionUtil;
 import jakarta.persistence.*;
 import lombok.*;
@@ -10,7 +9,8 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "outbox", indexes = {
-    @Index(name = "IX_IS_PUBLISHED", columnList = "IS_PUBLISHED")
+        @Index(name = "IX_IS_PUBLISHED", columnList = "IS_PUBLISHED"),
+        @Index(name = "IX_OUTBOX_DEAD", columnList = "DEAD")
 })
 @Getter @Setter
 @Builder
@@ -42,4 +42,20 @@ public class Outbox {
     private int version = EventVersionUtil.DEFAULT_VERSION;
     @Column(name = "CREATED_AT")
     private Instant createdAt = Instant.now();
+
+    // ---- publish-layer retry / dead-letter (poison-message handling) ----
+    /** Number of publish attempts so far. */
+    @Builder.Default
+    @Column(name = "ATTEMPTS")
+    private int attempts = 0;
+    /** Last publish error (truncated), for visibility. */
+    @Column(name = "LAST_ERROR", columnDefinition = "TEXT")
+    private String lastError;
+    /** Terminal: exhausted publish retries. Not retried; awaits replay. */
+    @Builder.Default
+    @Column(name = "DEAD")
+    private boolean dead = false;
+    /** Earliest time the row is eligible for the next publish attempt (backoff). Null = due now. */
+    @Column(name = "NEXT_ATTEMPT_AT")
+    private Instant nextAttemptAt;
 }

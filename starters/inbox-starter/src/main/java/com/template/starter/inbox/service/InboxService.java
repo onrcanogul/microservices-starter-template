@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.util.UUID;
 
 @Service
 public class InboxService {
@@ -44,6 +45,23 @@ public class InboxService {
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    /**
+     * Replay a dead-lettered (or any) inbox row: clear the dead/processed flags, reset attempts and
+     * backoff so the scheduler re-attempts it on the next cycle.
+     */
+    @Transactional
+    public void replay(UUID idempotentToken) {
+        inboxRepository.findById(idempotentToken).ifPresent(inbox -> {
+            inbox.setDead(false);
+            inbox.setProcessed(false);
+            inbox.setAttempts(0);
+            inbox.setNextAttemptAt(null);
+            inbox.setLastError(null);
+            inboxRepository.save(inbox);
+            log.info("Inbox message {} reset for replay", idempotentToken);
+        });
     }
 
     private int extractVersion(EventWrapper<? extends Event> wrapper) {

@@ -1,10 +1,10 @@
 package com.template.starter.outbox.scheduler;
 
 import com.template.starter.outbox.processor.OutboxProcessor;
+import com.template.starter.outbox.property.OutboxProperties;
 import com.template.starter.outbox.repository.OutboxRepository;
 import lombok.extern.slf4j.Slf4j;
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,10 +21,10 @@ public class OutboxScheduler {
 
     public OutboxScheduler(OutboxProcessor processor,
                            OutboxRepository repository,
-                           @Value("${acme.outbox.cleanup.retention-days:7}") int retentionDays) {
+                           OutboxProperties properties) {
         this.processor = processor;
         this.repository = repository;
-        this.retentionPeriod = Duration.ofDays(retentionDays);
+        this.retentionPeriod = Duration.ofDays(properties.getCleanup().getRetentionDays());
     }
 
     @Scheduled(fixedRateString = "${acme.outbox.scheduler.rate:1500}")
@@ -44,4 +44,3 @@ public class OutboxScheduler {
         }
     }
 }
-

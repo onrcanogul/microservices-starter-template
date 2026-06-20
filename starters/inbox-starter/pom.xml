@@ -21,19 +21,22 @@
 	</properties>
 
 	<dependencies>
-		<!-- Spring Boot Starter -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter</artifactId>
 		</dependency>
 
-		<!-- Persistence Starter -->
 		<dependency>
 			<groupId>com.acme.enterprise</groupId>
 			<artifactId>persistence-starter</artifactId>
 		</dependency>
 
-		<!-- Jackson -->
+		<!-- common-core: BusinessException (non-retryable poison classification) -->
+		<dependency>
+			<groupId>com.acme.enterprise</groupId>
+			<artifactId>common-core</artifactId>
+		</dependency>
+
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
@@ -43,7 +46,13 @@
 			<artifactId>shedlock-spring</artifactId>
 		</dependency>
 
-		<!-- Lombok -->
+		<!-- Micrometer: optional dead-letter/retry counters (used only if a MeterRegistry bean exists) -->
+		<dependency>
+			<groupId>io.micrometer</groupId>
+			<artifactId>micrometer-core</artifactId>
+			<optional>true</optional>
+		</dependency>
+
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
@@ -54,6 +63,17 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.acme.enterprise</groupId>
+			<artifactId>common-test</artifactId>
+			<version>${project.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.postgresql</groupId>
+			<artifactId>postgresql</artifactId>
 			<scope>test</scope>
 		</dependency>
 		<dependency>

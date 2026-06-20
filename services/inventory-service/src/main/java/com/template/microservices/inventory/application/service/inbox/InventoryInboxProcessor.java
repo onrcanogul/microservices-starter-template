@@ -12,32 +12,28 @@ import com.template.microservices.inventory.infrastructure.messaging.processor.S
 import com.template.microservices.inventory.infrastructure.messaging.processor.StockReservationFailedProducer;
 import com.template.microservices.inventory.infrastructure.messaging.processor.StockReservedProducer;
 import com.template.starter.inbox.entity.Inbox;
-import com.template.starter.inbox.repository.InboxRepository;
+import com.template.starter.inbox.service.InboxProcessingSupport;
 import com.template.starter.inbox.service.InboxProcessor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Objects;
 
 /**
- * Inventory side of the choreographed stock-reservation saga. Branches on the inbox row's stored
- * type (event FQCN) and emits the reply event through the outbox — all in one transaction, so the
- * stock mutation and the outbox row commit atomically.
+ * Inbox handler for the inventory side. Polling / per-message TX / retry / dead-letter live in the base
+ * {@link InboxProcessor}; this class only reserves or releases stock and emits the reply event.
  */
 @Service
 public class InventoryInboxProcessor extends InboxProcessor {
 
     private static final String REASON_INSUFFICIENT = "INSUFFICIENT_STOCK";
 
-    private final InboxRepository inboxRepository;
     private final InventoryService inventoryService;
     private final StockReservedProducer stockReservedProducer;
     private final StockReservationFailedProducer stockReservationFailedProducer;
     private final StockReleasedProducer stockReleasedProducer;
 
     public InventoryInboxProcessor(
-            InboxRepository inboxRepository,
+            InboxProcessingSupport support,
             ObjectMapper objectMapper,
             EventUpcastChain upcastChain,
             InventoryService inventoryService,
@@ -45,41 +41,34 @@ public class InventoryInboxProcessor extends InboxProcessor {
             StockReservationFailedProducer stockReservationFailedProducer,
             StockReleasedProducer stockReleasedProducer
     ) {
-        super(objectMapper, upcastChain);
-        this.inboxRepository = inboxRepository;
+        super(objectMapper, upcastChain, support);
         this.inventoryService = inventoryService;
         this.stockReservedProducer = stockReservedProducer;
         this.stockReservationFailedProducer = stockReservationFailedProducer;
         this.stockReleasedProducer = stockReleasedProducer;
     }
 
-    @Transactional
-    public void process() {
-        List<Inbox> inboxes = inboxRepository.findByProcessedFalse();
-        for (Inbox inbox : inboxes) {
-            String type = inbox.getType();
-            int version = inbox.getVersion();
+    @Override
+    protected void handle(Inbox inbox) {
+        String type = inbox.getType();
+        int version = inbox.getVersion();
 
-            if (Objects.equals(type, StockReservationRequestedEvent.class.getName())) {
-                StockReservationRequestedEvent event =
-                        getType(inbox.getPayload(), StockReservationRequestedEvent.class, version);
-                boolean reserved = inventoryService.reserve(event.orderId(), event.sku(), event.amount());
-                if (reserved) {
-                    stockReservedProducer.process(
-                            new StockReservedEvent(event.orderId(), event.sku(), event.amount()));
-                } else {
-                    stockReservationFailedProducer.process(
-                            new StockReservationFailedEvent(event.orderId(), event.sku(), REASON_INSUFFICIENT));
-                }
-            } else if (Objects.equals(type, StockReleaseRequestedEvent.class.getName())) {
-                StockReleaseRequestedEvent event =
-                        getType(inbox.getPayload(), StockReleaseRequestedEvent.class, version);
-                inventoryService.release(event.orderId());
-                stockReleasedProducer.process(new StockReleasedEvent(event.orderId(), event.sku()));
+        if (Objects.equals(type, StockReservationRequestedEvent.class.getName())) {
+            StockReservationRequestedEvent event =
+                    getType(inbox.getPayload(), StockReservationRequestedEvent.class, version);
+            boolean reserved = inventoryService.reserve(event.orderId(), event.sku(), event.amount());
+            if (reserved) {
+                stockReservedProducer.process(
+                        new StockReservedEvent(event.orderId(), event.sku(), event.amount()));
+            } else {
+                stockReservationFailedProducer.process(
+                        new StockReservationFailedEvent(event.orderId(), event.sku(), REASON_INSUFFICIENT));
             }
-
-            inbox.setProcessed(true);
-            inboxRepository.save(inbox);
+        } else if (Objects.equals(type, StockReleaseRequestedEvent.class.getName())) {
+            StockReleaseRequestedEvent event =
+                    getType(inbox.getPayload(), StockReleaseRequestedEvent.class, version);
+            inventoryService.release(event.orderId());
+            stockReleasedProducer.process(new StockReleasedEvent(event.orderId(), event.sku()));
         }
     }
 }
